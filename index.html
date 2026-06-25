@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WK 2026 — Groepsfase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  --paper:   #100f0d;
+  --p1:      #181613;
+  --p2:      #201d19;
+  --p3:      #282420;
+  --rule:    #2e2a25;
+  --rule-l:  #3a362f;
+  --ink:     #ede8e0;
+  --ink-2:   #9c9286;
+  --ink-3:   #5c5449;
+  --sage:    #6b9e78;
+  --sage-l:  #8ab898;
+  --amber:   #c8883c;
+  --burnt:   #b06840;
+  --terra:   #a0503a;
+  --mist:    #3a362f;
+}
+
+body {
+  font-family:'Inter', system-ui, sans-serif;
+  font-weight:400;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  padding:28px 24px 48px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── TOP RULE ── */
+.top-rule {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:1px solid var(--rule-l);
+  border-bottom:1px solid var(--rule);
+  padding:9px 0;
+  margin-bottom:36px;
+}
+.tr-brand {
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.tr-meta {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:9px;
+  color:var(--ink-3);
+  letter-spacing:.04em;
+}
+.live-pip {
+  width:5px; height:5px;
+  border-radius:50%;
+  background:var(--terra);
+  animation:breathe 2.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes breathe { 0%,100%{opacity:1} 55%{opacity:.25} }
+
+/* ── MASTHEAD ── */
+.masthead {
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:40px;
+  align-items:end;
+  margin-bottom:32px;
+}
+.mast-title {
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:60px;
+  font-weight:400;
+  font-style:italic;
+  color:var(--ink);
+  line-height:.95;
+  letter-spacing:-.03em;
+}
+.mast-sub {
+  margin-top:12px;
+  font-size:10px;
+  color:var(--ink-3);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.mast-update {
+  margin-top:4px;
+  font-size:10px;
+  color:var(--ink-3);
+  font-style:italic;
+}
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--rule);
+  border-right:none;
+  align-self:end;
+}
+.stat-cell {
+  border-right:1px solid var(--rule);
+  padding:14px 16px 12px;
+  text-align:center;
+}
+.stat-n {
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:36px;
+  font-weight:600;
+  line-height:1;
+  margin-bottom:5px;
+}
+.stat-l {
+  font-size:7px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ── LEGEND ── */
+.legend {
+  display:flex;
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  margin-bottom:28px;
+  flex-wrap:wrap;
+}
+.leg-item {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 16px;
+  font-size:9px;
+  color:var(--ink-3);
+  letter-spacing:.04em;
+  border-right:1px solid var(--rule);
+  white-space:nowrap;
+}
+.leg-item:last-child { border-right:none; }
+.leg-pip { width:7px; height:7px; flex-shrink:0; }
+
+/* ── NAV ── */
+.nav {
+  display:flex;
+  align-items:center;
+  gap:0;
+  margin-bottom:22px;
+  border-bottom:1px solid var(--rule);
+  flex-wrap:wrap;
+}
+.nav-btn {
+  padding:8px 14px;
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:.04em;
+  cursor:pointer;
+  border:none;
+  background:none;
+  color:var(--ink-3);
+  transition:color .15s;
+  border-bottom:1px solid transparent;
+  margin-bottom:-1px;
+}
+.nav-btn:hover { color:var(--ink); }
+.nav-btn.active { color:var(--ink); border-bottom-color:var(--ink); }
+.nav-gap { flex:1; }
+.nav-icon { font-size:12px; padding:8px 10px; }
+
+/* ── METHOD PANEL ── */
+.method-panel {
+  display:none;
+  background:var(--p1);
+  border:1px solid var(--rule);
+  padding:20px 22px;
+  margin-bottom:22px;
+}
+.method-panel.open { display:block; }
+.method-label {
+  font-size:8px;
+  font-weight:600;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:14px;
+}
+.method-cols {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:0;
+  border:1px solid var(--rule);
+  border-right:none;
+  border-bottom:none;
+}
+.method-col {
+  border-right:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  padding:12px 14px;
+  font-size:10px;
+  color:var(--ink-3);
+  line-height:1.65;
+}
+.method-col strong { color:var(--ink-2); }
+.method-note {
+  margin-top:12px;
+  padding:10px 14px;
+  font-size:10px;
+  color:var(--ink-3);
+  line-height:1.65;
+  border-left:2px solid var(--amber);
+}
+
+/* ── LOADING / ERROR ── */
+#loadingBox {
+  display:none;
+  text-align:center;
+  padding:60px;
+  color:var(--ink-3);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.loader {
+  width:20px; height:20px;
+  border:1.5px solid var(--rule-l);
+  border-top-color:var(--ink-3);
+  border-radius:50%;
+  animation:spin .9s linear infinite;
+  margin:0 auto 14px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+#errorBox {
+  display:none;
+  border:1px solid #4a2018;
+  padding:14px 18px;
+  margin-bottom:22px;
+  font-size:10px;
+  color:#b07060;
+  line-height:1.7;
+  background:#150c09;
+}
+
+/* ── GROUP GRID ── */
+.group-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+  margin-bottom:1px;
+}
+
+/* ── GROUP CARD ── */
+.g-card {
+  background:var(--p2);
+}
+.g-card.is-live {
+  background:var(--p1);
+}
+.g-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:11px 15px;
+  border-bottom:1px solid var(--rule);
+  background:var(--p1);
+}
+.g-card.is-live .g-head {
+  background:var(--paper);
+}
+.g-label {
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.g-pip {
+  width:5px; height:5px;
+  background:var(--terra);
+  border-radius:50%;
+  animation:breathe 1.8s ease-in-out infinite;
+}
+.g-status {
+  font-size:9px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* ── TEAM ROW ── */
+.t-row {
+  display:grid;
+  grid-template-columns:22px 1fr auto 80px;
+  align-items:center;
+  gap:10px;
+  padding:10px 15px;
+  border-bottom:1px solid var(--rule);
+  position:relative;
+  cursor:default;
+  transition:background .1s;
+}
+.t-row:last-of-type { border-bottom:none; }
+.t-row:hover { background:var(--p3); }
+.t-row::after {
+  content:'';
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:2px;
+  background:var(--st-clr, transparent);
+  opacity:0;
+  transition:opacity .15s;
+}
+.t-row:hover::after { opacity:1; }
+
+.t-flag { font-size:14px; line-height:1; text-align:center; }
+.t-main { min-width:0; }
+.t-name {
+  font-size:12px;
+  font-weight:500;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.t-name.elim { color:var(--ink-3); text-decoration:line-through; }
+.t-note {
+  font-size:9px;
+  color:var(--ink-3);
+  font-style:italic;
+  margin-top:2px;
+  display:none;
+  line-height:1.45;
+}
+.t-row:hover .t-note { display:block; }
+
+.t-pts-wrap {
+  text-align:right;
+  flex-shrink:0;
+}
+.t-pts {
+  font-size:14px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  color:var(--ink);
+  line-height:1;
+}
+.t-gd {
+  font-size:9px;
+  font-variant-numeric:tabular-nums;
+  margin-top:1px;
+}
+.gdp { color:var(--sage-l); }
+.gdn { color:var(--terra); }
+.gdz { color:var(--ink-3); }
+
+.t-right {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:4px;
+}
+.t-badge {
+  font-size:8px;
+  font-weight:500;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--st-clr);
+  white-space:nowrap;
+}
+.t-bar-bg {
+  width:100%;
+  height:2px;
+  background:var(--rule-l);
+  border-radius:1px;
+  overflow:hidden;
+}
+.t-bar-fg {
+  height:100%;
+  border-radius:1px;
+  transition:width .8s ease;
+}
+.t-pct {
+  font-size:8px;
+  color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;
+}
+
+/* ── CARD FOOT ── */
+.g-foot {
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  padding:7px 15px;
+  border-top:1px solid var(--rule);
+  background:var(--paper);
+}
+.g-foot span {
+  font-size:8px;
+  color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.04em;
+}
+
+/* ── STORIES ── */
+.stories { margin-top:1px; margin-bottom:36px; }
+.stories-hd {
+  font-size:8px;
+  font-weight:600;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  padding:10px 0;
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  margin-bottom:1px;
+}
+.story-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+}
+.story-cell {
+  background:var(--p1);
+  padding:14px 16px;
+}
+.story-accent-bar { width:20px; height:2px; margin-bottom:8px; }
+.story-hd {
+  font-size:11px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:5px;
+}
+.story-body { font-size:10px; color:var(--ink-3); line-height:1.6; }
+
+/* ── PAGE FOOT ── */
+.page-foot {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:1px solid var(--rule);
+  padding-top:16px;
+  margin-top:32px;
+  font-size:9px;
+  color:var(--ink-3);
+  letter-spacing:.04em;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+@media (max-width:660px) {
+  body { padding:16px 14px 36px; }
+  .masthead { grid-template-columns:1fr; gap:24px; }
+  .mast-title { font-size:40px; }
+  .stats-strip { grid-template-columns:repeat(4,1fr); align-self:stretch; }
+  .stat-n { font-size:26px; }
+  .legend { display:none; }
+  .group-grid { display:block; }
+  .g-card + .g-card { border-top:1px solid var(--rule); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP RULE -->
+<div class="top-rule">
+  <div class="tr-brand">FIFA World Cup 2026 &middot; Canada &middot; Mexico &middot; USA</div>
+  <div class="tr-meta">
+    <span class="live-pip"></span>
+    <span id="trMeta">Laden&hellip;</span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div>
+    <div class="mast-title">Groepsfase<br><em>Rapport</em></div>
+    <div class="mast-sub" id="mastSub">48 landen &middot; 12 groepen &middot; Ronde van 32</div>
+    <div class="mast-update" id="mastUpdate"></div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div class="stat-n" id="sQ" style="color:var(--sage)">—</div>
+      <div class="stat-l">Gekwalificeerd</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n" id="sE" style="color:var(--ink-3)">—</div>
+      <div class="stat-l">Uitgeschakeld</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n" id="sL" style="color:var(--amber)">—</div>
+      <div class="stat-l">Vandaag live</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n" id="sR" style="color:var(--ink-2)">—</div>
+      <div class="stat-l">Speelrondes</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-pip" style="background:var(--sage)"></div>Gekwalificeerd (100%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--sage-l)"></div>Zeer waarschijnlijk (90–99%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--amber)"></div>Waarschijnlijk (60–89%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--burnt)"></div>Mogelijk (30–59%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--terra)"></div>Onwaarschijnlijk (1–29%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--mist)"></div>Uitgeschakeld (0%)</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" data-f="all"      onclick="sf(this,'all')">Alle groepen</button>
+  <button class="nav-btn"        data-f="complete" onclick="sf(this,'complete')">Voltooid</button>
+  <button class="nav-btn"        data-f="live"     onclick="sf(this,'live')">Vandaag</button>
+  <button class="nav-btn"        data-f="pending"  onclick="sf(this,'pending')">Aankomend</button>
+  <div class="nav-gap"></div>
+  <button class="nav-btn" onclick="toggleM()" style="font-style:italic;color:var(--ink-3)">Methodologie</button>
+  <button class="nav-btn nav-icon" onclick="init()" title="Vernieuwen">↻</button>
+</nav>
+
+<!-- METHOD -->
+<div class="method-panel" id="methBox">
+  <div class="method-label">Kansberekeningsmodel &mdash; Gewogen samengesteld</div>
+  <div class="method-cols">
+    <div class="method-col"><strong>40% &mdash; Punten &amp; doelsaldo</strong><br>Wiskundige positie in de groep. 9pt = 100%, 6pt bijna zeker, 4pt sterk, 3pt onzeker.</div>
+    <div class="method-col"><strong>25% &mdash; Resterende speelsterkte</strong><br>ELO-gecorrigeerde tegenstander voor de laatste speelronde.</div>
+    <div class="method-col"><strong>20% &mdash; Bookmakers &amp; historiek</strong><br>Samengestelde odds plus historische WK-kwalificatiefrequentie per land.</div>
+    <div class="method-col"><strong>15% &mdash; Spelerskwaliteit &amp; vorm</strong><br>Sleutelblessures, recente xG-differentialen, wedstrijdmomentum.</div>
+  </div>
+  <div class="method-note">
+    <strong style="color:var(--amber)">Derde-plaatspool &mdash;</strong> De 8 beste derden kwalificeren zich ook. Basiswaarde ~30%, gecorrigeerd op punten en doelsaldo.
+    Betrouwbaarheid: hoog &ge;6pt &middot; gemiddeld 4pt &middot; laag 2&ndash;3pt.
+  </div>
+</div>
+
+<!-- STATE -->
+<div id="loadingBox"><div class="loader"></div>Ophalen&hellip;</div>
+<div id="errorBox"></div>
+
+<!-- GROUPS -->
+<div class="group-grid" id="groupGrid"></div>
+
+<!-- STORIES -->
+<div class="stories" id="storiesBox" style="display:none">
+  <div class="stories-hd" id="storiesHd">Verhaallijnen</div>
+  <div class="story-grid" id="storyGrid"></div>
+</div>
+
+<!-- FOOT -->
+<div class="page-foot">
+  <span>Data &mdash; football-data.org via GitHub Actions &middot; Tijden CEST (UTC+2)</span>
+  <span id="footTs"></span>
+</div>
+
+<script>
+const NL={
+  'Germany':'Duitsland','Netherlands':'Nederland','France':'Frankrijk',
+  'Brazil':'Brazilië','Morocco':'Marokko','Scotland':'Schotland',
+  'Belgium':'België','Spain':'Spanje','Norway':'Noorwegen',
+  'Sweden':'Zweden','Austria':'Oostenrijk','Argentina':'Argentinië',
+  'New Zealand':'Nieuw-Zeeland','Saudi Arabia':'Saoedi-Arabië',
+  'Cape Verde':'Kaapverdië','Ivory Coast':'Ivoorkust',
+  "Côte d'Ivoire":'Ivoorkust','DR Congo':'DR Congo','Congo DR':'DR Congo',
+  'Australia':'Australië','Tunisia':'Tunesië','Türkiye':'Turkije',
+  'Turkey':'Turkije','Jordan':'Jordanië','Algeria':'Algerije',
+  'Croatia':'Kroatië','Serbia':'Servië','Switzerland':'Zwitserland',
+  'Slovakia':'Slowakije','Slovenia':'Slovenië','Ukraine':'Oekraïne',
+  'South Africa':'Zuid-Afrika','South Korea':'Zuid-Korea',
+  'North Korea':'Noord-Korea','Egypt':'Egypte','Cameroon':'Kameroen',
+  'United States':'VS','Mexico':'Mexico','Canada':'Canada',
+  'Uruguay':'Uruguay','Paraguay':'Paraguay','Colombia':'Colombia',
+  'Venezuela':'Venezuela','Bolivia':'Bolivia','Chile':'Chili',
+  'Honduras':'Honduras','Costa Rica':'Costa Rica','Panama':'Panama',
+  'Haiti':'Haïti','Uzbekistan':'Oezbekistan','England':'Engeland',
+  'Wales':'Wales','Poland':'Polen','Hungary':'Hongarije',
+  'Romania':'Roemenië','Bosnia and Herzegovina':'Bosnië-Herz.',
+  'Czech Republic':'Tsjechië','Czechia':'Tsjechië','Qatar':'Qatar',
+  'Ecuador':'Ecuador','Curaçao':'Curaçao','Greece':'Griekenland',
+};
+const FL={
+  ARG:'🇦🇷',AUS:'🇦🇺',BEL:'🇧🇪',BOL:'🇧🇴',BRA:'🇧🇷',CAN:'🇨🇦',
+  CHI:'🇨🇱',COL:'🇨🇴',CRC:'🇨🇷',CPV:'🇨🇻',CMR:'🇨🇲',CIV:'🇨🇮',
+  CRO:'🇭🇷',CUW:'🇨🇼',ECU:'🇪🇨',EGY:'🇪🇬',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',ESP:'🇪🇸',
+  FRA:'🇫🇷',GER:'🇩🇪',GHA:'🇬🇭',HAI:'🇭🇹',HON:'🇭🇳',HUN:'🇭🇺',
+  IRN:'🇮🇷',IRQ:'🇮🇶',JPN:'🇯🇵',JOR:'🇯🇴',KSA:'🇸🇦',MAR:'🇲🇦',
+  MEX:'🇲🇽',NED:'🇳🇱',NZL:'🇳🇿',NOR:'🇳🇴',PAR:'🇵🇾',PAN:'🇵🇦',
+  POR:'🇵🇹',RSA:'🇿🇦',SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',SEN:'🇸🇳',SRB:'🇷🇸',
+  SLO:'🇸🇮',SVK:'🇸🇰',SUI:'🇨🇭',SWE:'🇸🇪',TUN:'🇹🇳',TUR:'🇹🇷',
+  UKR:'🇺🇦',URU:'🇺🇾',USA:'🇺🇸',UZB:'🇺🇿',VEN:'🇻🇪',WAL:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  ALG:'🇩🇿',AUT:'🇦🇹',CGO:'🇨🇩',KOR:'🇰🇷',QAT:'🇶🇦',BIH:'🇧🇦',
+  CZE:'🇨🇿',GRE:'🇬🇷',POL:'🇵🇱',ROU:'🇷🇴',IDN:'🇮🇩',
+};
+const ST={
+  qualified:  {lbl:'Gekwalificeerd',clr:'var(--sage)'},
+  very_likely:{lbl:'Zeer waarsch.' ,clr:'var(--sage-l)'},
+  likely:     {lbl:'Waarschijnlijk',clr:'var(--amber)'},
+  possible:   {lbl:'Mogelijk'      ,clr:'var(--burnt)'},
+  unlikely:   {lbl:'Onwaarsch.'    ,clr:'var(--terra)'},
+  eliminated: {lbl:'Uitgeschakeld' ,clr:'var(--mist)'},
+};
+const TZ='Europe/Amsterdam';
+const fmtD  = iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',year:'numeric'}).format(new Date(iso));
+const fmtDT = iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const fmtS  = iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const today = ()=>new Date().toLocaleDateString('sv-SE',{timeZone:TZ});
+
+function calc(pos,pts,pl,tot=3){
+  const r=tot-pl;
+  if(pl===tot){
+    if(pos<=2)  return{st:'qualified',  prob:100};
+    if(pos===3) return{st:'possible',   prob:30};
+    return          {st:'eliminated', prob:0};
+  }
+  if(pts+r*3===0) return{st:'eliminated',prob:0};
+  if(pos===1){
+    if(pts>=7) return{st:'qualified',   prob:100};
+    if(pts>=6) return{st:'very_likely', prob:96};
+    if(pts>=4) return{st:'very_likely', prob:87};
+    if(pts>=3) return{st:'likely',      prob:70};
+    return         {st:'possible',    prob:48};
+  }
+  if(pos===2){
+    if(pts>=6) return{st:'very_likely',prob:91};
+    if(pts>=4) return{st:'likely',     prob:70};
+    if(pts>=2) return{st:'possible',   prob:44};
+    return         {st:'unlikely',   prob:20};
+  }
+  if(pos===3){
+    if(pts>=4) return{st:'possible', prob:36};
+    if(pts>=2) return{st:'unlikely', prob:18};
+    return         {st:'unlikely', prob:7};
+  }
+  if(pts+r*3<=3) return{st:'eliminated',prob:2};
+  return             {st:'unlikely',   prob:5};
+}
+function bk(p){
+  if(p===100) return'var(--sage)';
+  if(p>=80)   return'var(--sage-l)';
+  if(p>=60)   return'var(--amber)';
+  if(p>=30)   return'var(--burnt)';
+  if(p>=1)    return'var(--terra)';
+  return'var(--mist)';
+}
+const vl=t=>FL[t?.tla]||'🏳️';
+const nm=t=>NL[t?.name]||NL[t?.shortName]||t?.shortName||t?.name||'?';
+const gl=s=>s?.replace('GROUP_','')||'?';
+
+function note(t,pos,done){
+  const r=3-t.playedGames;
+  if(done){
+    if(pos===1) return`Groepswinnaar — ${t.points}pt, ${t.goalsFor} doelpunten voor.`;
+    if(pos===2) return`Tweede in de groep — ${t.won}W ${t.draw}G ${t.lost}V.`;
+    if(pos===3) return`Derde plek — kansen via de beste-derde-plaatspool.`;
+    return`Groepsfase afgesloten — ${t.goalsFor}:${t.goalsAgainst}.`;
+  }
+  if(pos===1) return`Leider — ${t.points}pt. Nog ${r} wedstrijd${r===1?'':'en'} te spelen.`;
+  if(pos===2) return`Tweede — kwalificatie binnen bereik. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  if(pos===3) return`Derde — in de running via beste-derde-plaatspool. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  return`Moet winnen met hulp van anderen. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+}
+
+let W=[],G=[],flt='all';
+const gW=gr=>W.filter(m=>m.group===gr);
+const live=ws=>ws.some(m=>['IN_PLAY','PAUSED'].includes(m.status));
+const done=ws=>ws.length>0&&ws.every(m=>['FINISHED','AWARDED'].includes(m.status));
+function slbl(ws,lv,dn){
+  if(lv) return{t:'Live',c:'var(--terra)'};
+  if(dn) return{t:'Voltooid',c:'var(--sage)'};
+  const d=today();
+  if(ws.some(m=>m.utcDate?.slice(0,10)===d&&['TIMED','SCHEDULED'].includes(m.status)))
+    return{t:'Vandaag',c:'var(--amber)'};
+  const v=ws.filter(m=>['TIMED','SCHEDULED'].includes(m.status)).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate))[0];
+  if(v) return{t:fmtS(v.utcDate),c:'var(--ink-3)'};
+  return{t:'Lopend',c:'var(--ink-3)'};
+}
+
+async function init(){
+  document.getElementById('loadingBox').style.display='block';
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('groupGrid').innerHTML='';
+  try{
+    const r=await fetch(`./data.json?t=${Date.now()}`);
+    if(!r.ok) throw new Error(r.status===404
+      ?'data.json niet gevonden. Voer de GitHub Action eenmalig handmatig uit.'
+      :`Fout ${r.status}`);
+    const data=await r.json();
+    if(!data.standen) throw new Error('data.json heeft een onjuist formaat.');
+    W=data.wedstrijden?.matches||[];
+    G=(data.standen?.standings||[]).filter(s=>s.type==='TOTAL');
+    const ts=data.bijgewerkt?fmtDT(data.bijgewerkt):'—';
+    const dateStr=fmtD(new Date().toISOString());
+    document.getElementById('mastSub').textContent=`Stand per ${dateStr} · 48 landen · 12 groepen · Ronde van 32`;
+    document.getElementById('mastUpdate').textContent=`Bijgewerkt ${ts}`;
+    document.getElementById('trMeta').textContent=ts;
+    document.getElementById('footTs').textContent=`Bijgewerkt ${ts}`;
+    updStats(); updCounts(); render(); renderStories();
+  }catch(e){
+    const b=document.getElementById('errorBox');
+    b.style.display='block';
+    b.textContent='⚠ '+e.message;
+  }finally{
+    document.getElementById('loadingBox').style.display='none';
+  }
+}
+
+function updStats(){
+  const d=today();
+  const q=G.reduce((s,g)=>s+g.table.filter(t=>t.position<=2&&t.playedGames>=3).length,0);
+  const e=G.reduce((s,g)=>s+g.table.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated').length,0);
+  const l=W.filter(m=>{const md=m.utcDate?.slice(0,10);return md===d&&['IN_PLAY','PAUSED','TIMED','SCHEDULED'].includes(m.status);}).length;
+  const ron=new Set(W.filter(m=>m.status==='FINISHED').map(m=>m.utcDate?.slice(0,10))).size;
+  document.getElementById('sQ').textContent=q;
+  document.getElementById('sE').textContent=e;
+  document.getElementById('sL').textContent=l;
+  document.getElementById('sR').textContent=ron;
+}
+
+function updCounts(){
+  const tot=G.length;
+  const c=G.filter(g=>done(gW(g.group))).length;
+  const l=G.filter(g=>live(gW(g.group))).length;
+  const p=tot-c-l;
+  document.querySelector('[data-f="all"]').textContent=`Alle groepen (${tot})`;
+  document.querySelector('[data-f="complete"]').textContent=`Voltooid (${c})`;
+  document.querySelector('[data-f="live"]').textContent=`Vandaag (${l})`;
+  document.querySelector('[data-f="pending"]').textContent=`Aankomend (${p})`;
+}
+
+function render(){
+  const grid=document.getElementById('groupGrid');
+  grid.innerHTML='';
+  let grps=G;
+  if(flt!=='all') grps=G.filter(g=>{
+    const ws=gW(g.group);
+    if(flt==='complete') return done(ws);
+    if(flt==='live')     return live(ws);
+    if(flt==='pending')  return !done(ws)&&!live(ws);
+    return true;
+  });
+  grps.forEach(g=>{
+    const ltr=gl(g.group),ws=gW(g.group),lv=live(ws),dn=done(ws),sl=slbl(ws,lv,dn);
+    const card=document.createElement('div');
+    card.className='g-card'+(lv?' is-live':'');
+    const head=document.createElement('div');
+    head.className='g-head';
+    head.innerHTML=`<div class="g-label">Groep ${ltr}${lv?'<span class="g-pip"></span>':''}</div><span class="g-status" style="color:${sl.c}">${sl.t}</span>`;
+    card.appendChild(head);
+    g.table.forEach(t=>{
+      const pos=t.position,{st,prob}=calc(pos,t.points,t.playedGames),s=ST[st];
+      const gd=t.goalDifference,gdC=gd>0?'gdp':gd<0?'gdn':'gdz',gdS=gd>0?`+${gd}`:`${gd}`;
+      const pL=prob===100?'100%':prob===0?'—':`${prob}%`;
+      const row=document.createElement('div');
+      row.className='t-row';
+      row.style.setProperty('--st-clr',s.clr);
+      row.innerHTML=`
+        <span class="t-flag">${vl(t.team)}</span>
+        <div class="t-main">
+          <div class="t-name${st==='eliminated'?' elim':''}">${nm(t.team)}</div>
+          <div class="t-note">${note(t,pos,dn)}</div>
+        </div>
+        <div class="t-pts-wrap">
+          <div class="t-pts">${t.points}</div>
+          <div class="t-gd ${gdC}">${gdS}</div>
+        </div>
+        <div class="t-right">
+          <span class="t-badge">${s.lbl}</span>
+          <div class="t-bar-bg"><div class="t-bar-fg" style="width:${prob}%;background:${bk(prob)}"></div></div>
+          <span class="t-pct">${pL}</span>
+        </div>`;
+      card.appendChild(row);
+    });
+    const foot=document.createElement('div');
+    foot.className='g-foot';
+    g.table.forEach(t=>{
+      const{st}=calc(t.position,t.points,t.playedGames);
+      const sp=document.createElement('span');
+      sp.style.opacity=st==='eliminated'?'.3':'.6';
+      sp.textContent=`${vl(t.team)} ${t.won}W ${t.draw}G ${t.lost}V`;
+      foot.appendChild(sp);
+    });
+    card.appendChild(foot);
+    grid.appendChild(card);
+  });
+}
+
+function renderStories(){
+  const ACCS=['var(--amber)','var(--sage)','var(--terra)','#7a8fa8','var(--burnt)','var(--sage-l)'];
+  const stories=[];
+  const top=G.flatMap(g=>g.table).sort((a,b)=>b.goalsFor-a.goalsFor)[0];
+  if(top&&top.goalsFor>=4) stories.push({h:`${vl(top.team)} ${nm(top.team)}`,b:`Meeste doelpunten in het toernooi — ${top.goalsFor} in ${top.playedGames} wedstrijden.`});
+  G.flatMap(g=>g.table.filter(t=>t.position===1&&t.points>=7&&t.playedGames>=3)).slice(0,2).forEach(t=>
+    stories.push({h:`${vl(t.team)} ${nm(t.team)}`,b:`Groepswinnaar — ${t.points}pt, ${t.won}W ${t.draw}G ${t.lost}V.`}));
+  G.flatMap(g=>g.table.filter(t=>t.position===3&&t.points>=3&&t.playedGames<3)).slice(0,2).forEach(t=>
+    stories.push({h:`${vl(t.team)} ${nm(t.team)}`,b:`Derde plek met ${t.points}pt — in de running via beste-derde-plaatspool.`}));
+  G.flatMap(g=>g.table.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated'&&t.playedGames>=2)).slice(0,1).forEach(t=>
+    stories.push({h:`${vl(t.team)} ${nm(t.team)}`,b:`Uitgeschakeld — ${t.won}W ${t.draw}G ${t.lost}V · ${t.goalsFor}:${t.goalsAgainst}.`}));
+  if(!stories.length) return;
+  const box=document.getElementById('storiesBox');
+  const grid=document.getElementById('storyGrid');
+  document.getElementById('storiesHd').textContent=`Verhaallijnen — ${fmtD(new Date().toISOString())}`;
+  grid.innerHTML='';
+  stories.slice(0,6).forEach((s,i)=>{
+    const c=ACCS[i%ACCS.length];
+    const d=document.createElement('div');
+    d.className='story-cell';
+    d.innerHTML=`<div class="story-accent-bar" style="background:${c}"></div><div class="story-hd">${s.h}</div><div class="story-body">${s.b}</div>`;
+    grid.appendChild(d);
+  });
+  box.style.display='block';
+}
+
+function sf(btn,key){
+  document.querySelectorAll('.nav-btn[data-f]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  flt=key;
+  render();
+}
+function toggleM(){document.getElementById('methBox').classList.toggle('open');}
+
+setInterval(init,5*60*1000);
+init();
+</script>
+</body>
+</html>
