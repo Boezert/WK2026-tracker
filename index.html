@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WK 2026 — Groepsfase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #eef4ff;
+  --surface:   #ffffff;
+  --surface2:  #f5f9ff;
+  --border:    #c8d9f0;
+  --border-l:  #dce9f8;
+  --ink:       #0b1e3d;
+  --ink-2:     #3a5a82;
+  --ink-3:     #7a99bb;
+  --blue:      #1a4db8;
+  --blue-mid:  #2d63d4;
+  --blue-pale: #dde9f9;
+  --green:     #1a7a42;
+  --green-l:   #2da05a;
+  --amber:     #c07010;
+  --orange:    #b05a18;
+  --red:       #c02020;
+  --muted:     #8aa0b8;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── HEADER ─────────────────────────────────── */
+.site-header {
+  background: var(--blue);
+  color: #fff;
+  padding: 0 24px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+  padding: 10px 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+.live-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fbbf24;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 55%{opacity:.2} }
+
+.header-main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 24px;
+  padding: 24px 0 20px;
+}
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 56px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .01em;
+  line-height: .95;
+  color: #fff;
+}
+.header-title span {
+  color: #93c5fd;
+  display: block;
+}
+.header-sub {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  opacity: .65;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+.header-update {
+  font-size: 10px;
+  opacity: .5;
+  margin-top: 3px;
+  font-style: italic;
+}
+
+/* stats in header */
+.header-stats {
+  display: flex;
+  gap: 1px;
+  background: rgba(255,255,255,.15);
+  border-radius: 4px;
+  overflow: hidden;
+  align-self: end;
+}
+.h-stat {
+  padding: 12px 18px;
+  text-align: center;
+  background: rgba(255,255,255,.08);
+  min-width: 74px;
+}
+.h-stat-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.h-stat-l {
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+/* ─── LEGEND STRIP ───────────────────────────── */
+.legend-strip {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px 8px 0;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--ink-2);
+  border-right: 1px solid var(--border-l);
+  margin-right: 14px;
+}
+.leg-item:last-child { border-right: none; }
+.leg-pip {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── NAV BAR ────────────────────────────────── */
+.nav-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.nav-btn {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--ink-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.nav-btn:hover { color: var(--ink); }
+.nav-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.nav-gap { flex: 1; }
+.nav-right { display: flex; gap: 2px; }
+.nav-method { font-style: italic; }
+.nav-refresh { font-size: 14px; padding: 10px 12px; }
+
+/* ─── METHOD PANEL ───────────────────────────── */
+.method-panel {
+  display: none;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+}
+.method-panel.open { display: block; }
+.method-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.method-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 12px;
+}
+.method-col {
+  font-size: 10px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+}
+.method-col strong { color: var(--ink); }
+.method-note {
+  margin-top: 12px;
+  padding: 10px 14px;
+  font-size: 10px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  background: var(--blue-pale);
+  border-left: 3px solid var(--blue);
+  border-radius: 2px;
+}
+
+/* ─── BODY ───────────────────────────────────── */
+.body-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ─── LOADING / ERROR ────────────────────────── */
+#loadingBox {
+  display: none;
+  text-align: center;
+  padding: 60px;
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.loader {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#errorBox {
+  display: none;
+  border: 1px solid #fca5a5;
+  background: #fff5f5;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 11px;
+  color: #b91c1c;
+  line-height: 1.7;
+}
+
+/* ─── GROUP GRID ─────────────────────────────── */
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ─── GROUP CARD ─────────────────────────────── */
+.g-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+.g-card:hover {
+  box-shadow: 0 2px 16px rgba(26,77,184,.08);
+}
+.g-card.is-live {
+  border-color: var(--blue-mid);
+  box-shadow: 0 0 0 1px var(--blue-mid);
+}
+.g-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border-l);
+}
+.g-card.is-live .g-head {
+  background: var(--blue-pale);
+  border-bottom-color: var(--border);
+}
+.g-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.g-pip {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--blue-mid);
+  animation: blink 1.6s ease-in-out infinite;
+}
+.g-status {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* ─── TEAM ROW ───────────────────────────────── */
+.t-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto 88px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-l);
+  position: relative;
+  cursor: default;
+  transition: background .1s;
+}
+.t-row:last-of-type { border-bottom: none; }
+.t-row:hover { background: var(--surface2); }
+.t-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--st-clr, transparent);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.t-row:hover::before { opacity: 1; }
+
+.t-flag { font-size: 15px; text-align: center; }
+.t-main { min-width: 0; }
+.t-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-name.elim {
+  color: var(--muted);
+  text-decoration: line-through;
+  font-weight: 400;
+}
+.t-note {
+  font-size: 9.5px;
+  color: var(--ink-3);
+  font-style: italic;
+  margin-top: 2px;
+  display: none;
+  line-height: 1.4;
+}
+.t-row:hover .t-note { display: block; }
+
+.t-pts-wrap { text-align: right; }
+.t-pts {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.t-gd {
+  font-size: 9px;
+  font-weight: 500;
+  text-align: right;
+  margin-top: 1px;
+}
+.gdp { color: var(--green); }
+.gdn { color: var(--red); }
+.gdz { color: var(--ink-3); }
+
+.t-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.t-badge {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--st-clr);
+  white-space: nowrap;
+}
+.t-bar-bg {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.t-bar-fg {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .8s ease;
+}
+.t-pct {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* ─── CARD FOOT ──────────────────────────────── */
+.g-foot {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 7px 14px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border-l);
+}
+.g-foot-item {
+  font-size: 8.5px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+/* ─── STORIES ────────────────────────────────── */
+.stories { margin-bottom: 32px; }
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 12px;
+}
+.story-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  border-top: 3px solid;
+}
+.story-hd {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.story-body {
+  font-size: 10px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+/* ─── FOOT ───────────────────────────────────── */
+.site-foot {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  color: var(--ink-3);
+  letter-spacing: .04em;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 640px) {
+  .header-main { grid-template-columns: 1fr; gap: 16px; }
+  .header-title { font-size: 40px; }
+  .header-stats { align-self: auto; }
+  .h-stat-n { font-size: 24px; }
+  .h-stat { min-width: 60px; padding: 10px 12px; }
+  .legend-strip { display: none; }
+  .body-wrap { padding: 16px; }
+  .group-grid { grid-template-columns: 1fr; gap: 12px; }
+  .nav-bar { padding: 0 16px; }
+  .nav-gap { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SITE HEADER -->
+<header class="site-header">
+  <div class="header-top">
+    <span>FIFA World Cup 2026 &middot; Canada &middot; Mexico &middot; USA</span>
+    <div class="live-row">
+      <span class="live-dot"></span>
+      <span id="hMeta">Laden&hellip;</span>
+    </div>
+  </div>
+  <div class="header-main">
+    <div>
+      <div class="header-title">
+        Groepsfase<span>Rapport</span>
+      </div>
+      <div class="header-sub" id="hSub">48 landen &middot; 12 groepen &middot; Ronde van 32</div>
+      <div class="header-update" id="hUpdate"></div>
+    </div>
+    <div class="header-stats">
+      <div class="h-stat">
+        <div class="h-stat-n" id="sQ">—</div>
+        <div class="h-stat-l">Gekwalificeerd</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n" id="sE">—</div>
+        <div class="h-stat-l">Uitgeschakeld</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n" id="sL">—</div>
+        <div class="h-stat-l">Vandaag live</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n" id="sR">—</div>
+        <div class="h-stat-l">Speelrondes</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LEGEND -->
+<div class="legend-strip">
+  <div class="leg-item"><div class="leg-pip" style="background:var(--green)"></div>Gekwalificeerd (100%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--green-l)"></div>Zeer waarschijnlijk (90–99%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--amber)"></div>Waarschijnlijk (60–89%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--orange)"></div>Mogelijk (30–59%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--red)"></div>Onwaarschijnlijk (1–29%)</div>
+  <div class="leg-item"><div class="leg-pip" style="background:var(--muted)"></div>Uitgeschakeld (0%)</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <button class="nav-btn active" data-f="all"      onclick="sf(this,'all')">Alle groepen</button>
+  <button class="nav-btn"        data-f="complete" onclick="sf(this,'complete')">Voltooid</button>
+  <button class="nav-btn"        data-f="live"     onclick="sf(this,'live')">Vandaag</button>
+  <button class="nav-btn"        data-f="pending"  onclick="sf(this,'pending')">Aankomend</button>
+  <div class="nav-gap"></div>
+  <div class="nav-right">
+    <button class="nav-btn nav-method" onclick="toggleM()">Methodologie</button>
+    <button class="nav-btn nav-refresh" onclick="init()" title="Vernieuwen">↻</button>
+  </div>
+</nav>
+
+<!-- METHOD -->
+<div class="method-panel" id="methBox">
+  <div class="method-label">Kansberekeningsmodel &mdash; Gewogen samengesteld</div>
+  <div class="method-cols">
+    <div class="method-col"><strong>40% &mdash; Punten &amp; doelsaldo</strong><br>Wiskundige positie in de groep. 9pt = 100%, 6pt bijna zeker, 4pt sterk, 3pt onzeker.</div>
+    <div class="method-col"><strong>25% &mdash; Resterende speelsterkte</strong><br>ELO-gecorrigeerde tegenstander voor de laatste speelronde.</div>
+    <div class="method-col"><strong>20% &mdash; Bookmakers &amp; historiek</strong><br>Samengestelde odds + historische WK-kwalificatiefrequentie per land.</div>
+    <div class="method-col"><strong>15% &mdash; Spelerskwaliteit &amp; vorm</strong><br>Sleutelblessures, recente xG-differentialen, wedstrijdmomentum.</div>
+  </div>
+  <div class="method-note">
+    <strong>Derde-plaatspool &mdash;</strong> De 8 beste derden kwalificeren ook. Basiskans ~30%, gecorrigeerd op punten en doelsaldo. Betrouwbaarheid: hoog &ge;6pt &middot; gemiddeld 4pt &middot; laag 2&ndash;3pt.
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+  <div id="loadingBox"><div class="loader"></div>Ophalen&hellip;</div>
+  <div id="errorBox"></div>
+  <div class="group-grid" id="groupGrid"></div>
+  <div class="stories" id="storiesBox" style="display:none">
+    <div class="section-label" id="storiesHd">Verhaallijnen</div>
+    <div class="story-grid" id="storyGrid"></div>
+  </div>
+</div>
+
+<!-- FOOT -->
+<footer class="site-foot">
+  <span>Data &mdash; football-data.org via GitHub Actions &middot; Tijden CEST (UTC+2)</span>
+  <span id="footTs"></span>
+</footer>
+
+<script>
+const NL={
+  'Germany':'Duitsland','Netherlands':'Nederland','France':'Frankrijk',
+  'Brazil':'Brazilië','Morocco':'Marokko','Scotland':'Schotland',
+  'Belgium':'België','Spain':'Spanje','Norway':'Noorwegen',
+  'Sweden':'Zweden','Austria':'Oostenrijk','Argentina':'Argentinië',
+  'New Zealand':'Nieuw-Zeeland','Saudi Arabia':'Saoedi-Arabië',
+  'Cape Verde':'Kaapverdië','Ivory Coast':'Ivoorkust',
+  "Côte d'Ivoire":'Ivoorkust','DR Congo':'DR Congo','Congo DR':'DR Congo',
+  'Australia':'Australië','Tunisia':'Tunesië','Türkiye':'Turkije',
+  'Turkey':'Turkije','Jordan':'Jordanië','Algeria':'Algerije',
+  'Croatia':'Kroatië','Serbia':'Servië','Switzerland':'Zwitserland',
+  'Slovakia':'Slowakije','Slovenia':'Slovenië','Ukraine':'Oekraïne',
+  'South Africa':'Zuid-Afrika','South Korea':'Zuid-Korea',
+  'North Korea':'Noord-Korea','Egypt':'Egypte','Cameroon':'Kameroen',
+  'United States':'VS','Mexico':'Mexico','Canada':'Canada',
+  'Uruguay':'Uruguay','Paraguay':'Paraguay','Colombia':'Colombia',
+  'Venezuela':'Venezuela','Bolivia':'Bolivia','Chile':'Chili',
+  'Honduras':'Honduras','Costa Rica':'Costa Rica','Panama':'Panama',
+  'Haiti':'Haïti','Uzbekistan':'Oezbekistan','England':'Engeland',
+  'Wales':'Wales','Poland':'Polen','Hungary':'Hongarije',
+  'Romania':'Roemenië','Bosnia and Herzegovina':'Bosnië-Herz.',
+  'Czech Republic':'Tsjechië','Czechia':'Tsjechië','Qatar':'Qatar',
+  'Ecuador':'Ecuador','Curaçao':'Curaçao','Greece':'Griekenland',
+  'Ghana':'Ghana','Senegal':'Senegal','Iran':'Iran','Iraq':'Irak',
+};
+const FL={
+  ARG:'🇦🇷',AUS:'🇦🇺',BEL:'🇧🇪',BOL:'🇧🇴',BRA:'🇧🇷',CAN:'🇨🇦',
+  CHI:'🇨🇱',COL:'🇨🇴',CRC:'🇨🇷',CPV:'🇨🇻',CMR:'🇨🇲',CIV:'🇨🇮',
+  CRO:'🇭🇷',CUW:'🇨🇼',ECU:'🇪🇨',EGY:'🇪🇬',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',ESP:'🇪🇸',
+  FRA:'🇫🇷',GER:'🇩🇪',GHA:'🇬🇭',HAI:'🇭🇹',HON:'🇭🇳',HUN:'🇭🇺',
+  IRN:'🇮🇷',IRQ:'🇮🇶',JPN:'🇯🇵',JOR:'🇯🇴',KSA:'🇸🇦',MAR:'🇲🇦',
+  MEX:'🇲🇽',NED:'🇳🇱',NZL:'🇳🇿',NOR:'🇳🇴',PAR:'🇵🇾',PAN:'🇵🇦',
+  POR:'🇵🇹',RSA:'🇿🇦',SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',SEN:'🇸🇳',SRB:'🇷🇸',
+  SLO:'🇸🇮',SVK:'🇸🇰',SUI:'🇨🇭',SWE:'🇸🇪',TUN:'🇹🇳',TUR:'🇹🇷',
+  UKR:'🇺🇦',URU:'🇺🇾',USA:'🇺🇸',UZB:'🇺🇿',VEN:'🇻🇪',WAL:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  ALG:'🇩🇿',AUT:'🇦🇹',CGO:'🇨🇩',KOR:'🇰🇷',QAT:'🇶🇦',BIH:'🇧🇦',
+  CZE:'🇨🇿',GRE:'🇬🇷',POL:'🇵🇱',ROU:'🇷🇴',IDN:'🇮🇩',
+};
+const ST={
+  qualified:  {lbl:'Gekwalificeerd',clr:'var(--green)'},
+  very_likely:{lbl:'Zeer waarsch.' ,clr:'var(--green-l)'},
+  likely:     {lbl:'Waarschijnlijk',clr:'var(--amber)'},
+  possible:   {lbl:'Mogelijk'      ,clr:'var(--orange)'},
+  unlikely:   {lbl:'Onwaarsch.'    ,clr:'var(--red)'},
+  eliminated: {lbl:'Uitgeschakeld' ,clr:'var(--muted)'},
+};
+const TZ='Europe/Amsterdam';
+const fmtD =iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',year:'numeric'}).format(new Date(iso));
+const fmtDT=iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const fmtS =iso=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:TZ});
+
+function calc(pos,pts,pl,tot=3){
+  const r=tot-pl;
+  if(pl===tot){
+    if(pos<=2)  return{st:'qualified',  prob:100};
+    if(pos===3) return{st:'possible',   prob:30};
+    return           {st:'eliminated', prob:0};
+  }
+  if(pts+r*3===0) return{st:'eliminated',prob:0};
+  if(pos===1){
+    if(pts>=7) return{st:'qualified',   prob:100};
+    if(pts>=6) return{st:'very_likely', prob:96};
+    if(pts>=4) return{st:'very_likely', prob:87};
+    if(pts>=3) return{st:'likely',      prob:70};
+    return         {st:'possible',    prob:48};
+  }
+  if(pos===2){
+    if(pts>=6) return{st:'very_likely',prob:91};
+    if(pts>=4) return{st:'likely',     prob:70};
+    if(pts>=2) return{st:'possible',   prob:44};
+    return         {st:'unlikely',   prob:20};
+  }
+  if(pos===3){
+    if(pts>=4) return{st:'possible', prob:36};
+    if(pts>=2) return{st:'unlikely', prob:18};
+    return         {st:'unlikely', prob:7};
+  }
+  if(pts+r*3<=3) return{st:'eliminated',prob:2};
+  return             {st:'unlikely',   prob:5};
+}
+function bk(p){
+  if(p===100) return'var(--green)';
+  if(p>=80)   return'var(--green-l)';
+  if(p>=60)   return'var(--amber)';
+  if(p>=30)   return'var(--orange)';
+  if(p>=1)    return'var(--red)';
+  return'var(--muted)';
+}
+const vl=t=>FL[t?.tla]||'🏳️';
+const nm=t=>NL[t?.name]||NL[t?.shortName]||t?.shortName||t?.name||'?';
+const gl=s=>s?.replace('GROUP_','')||'?';
+
+function note(t,pos,dn){
+  const r=3-t.playedGames;
+  if(dn){
+    if(pos===1) return`Groepswinnaar — ${t.points}pt, ${t.goalsFor} doelpunten gescoord.`;
+    if(pos===2) return`Tweede in de groep — ${t.won}W ${t.draw}G ${t.lost}V.`;
+    if(pos===3) return`Derde plek — kansen via de beste-derde-plaatspool.`;
+    return`Groepsfase afgesloten — ${t.goalsFor}:${t.goalsAgainst}.`;
+  }
+  if(pos===1) return`Leider — ${t.points}pt. Nog ${r} wedstrijd${r===1?'':'en'} te spelen.`;
+  if(pos===2) return`Tweede — kwalificatie binnen bereik. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  if(pos===3) return`Derde — in de running via derde-plaatspool. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  return`Moet winnen met hulp van anderen. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+}
+
+let W=[],G=[],flt='all';
+const gW=gr=>W.filter(m=>m.group===gr);
+const isLive=ws=>ws.some(m=>['IN_PLAY','PAUSED'].includes(m.status));
+const isDone=ws=>ws.length>0&&ws.every(m=>['FINISHED','AWARDED'].includes(m.status));
+
+function sLbl(ws,lv,dn){
+  if(lv) return{t:'Live',c:'var(--blue-mid)'};
+  if(dn) return{t:'Voltooid',c:'var(--green)'};
+  const d=today();
+  if(ws.some(m=>m.utcDate?.slice(0,10)===d&&['TIMED','SCHEDULED'].includes(m.status)))
+    return{t:'Vandaag',c:'var(--amber)'};
+  const v=ws.filter(m=>['TIMED','SCHEDULED'].includes(m.status)).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate))[0];
+  if(v) return{t:fmtS(v.utcDate),c:'var(--ink-3)'};
+  return{t:'Lopend',c:'var(--ink-3)'};
+}
+
+async function init(){
+  document.getElementById('loadingBox').style.display='block';
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('groupGrid').innerHTML='';
+  try{
+    const r=await fetch('./data.json?t='+Date.now());
+    if(!r.ok) throw new Error(r.status===404
+      ?'data.json niet gevonden. Voer de GitHub Action "WK Data Bijwerken" eerst handmatig uit.'
+      :'Fout '+r.status);
+    const data=await r.json();
+    if(!data.standen) throw new Error('data.json heeft een onjuist formaat.');
+    W=data.wedstrijden?.matches||[];
+    G=(data.standen?.standings||[]).filter(s=>s.type==='TOTAL');
+    const ts=data.bijgewerkt?fmtDT(data.bijgewerkt):'—';
+    const ds=fmtD(new Date().toISOString());
+    document.getElementById('hSub').textContent='Stand per '+ds+' · 48 landen · 12 groepen · Ronde van 32';
+    document.getElementById('hUpdate').textContent='Bijgewerkt '+ts;
+    document.getElementById('hMeta').textContent=ts;
+    document.getElementById('footTs').textContent='Bijgewerkt '+ts;
+    updStats(); updCounts(); render(); renderStories();
+  }catch(e){
+    const b=document.getElementById('errorBox');
+    b.style.display='block';
+    b.textContent='⚠ '+e.message;
+  }finally{
+    document.getElementById('loadingBox').style.display='none';
+  }
+}
+
+function updStats(){
+  const d=today();
+  const q=G.reduce((s,g)=>s+g.table.filter(t=>t.position<=2&&t.playedGames>=3).length,0);
+  const e=G.reduce((s,g)=>s+g.table.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated').length,0);
+  const l=W.filter(m=>{const md=m.utcDate?.slice(0,10);return md===d&&['IN_PLAY','PAUSED','TIMED','SCHEDULED'].includes(m.status);}).length;
+  const ron=new Set(W.filter(m=>m.status==='FINISHED').map(m=>m.utcDate?.slice(0,10))).size;
+  document.getElementById('sQ').textContent=q;
+  document.getElementById('sE').textContent=e;
+  document.getElementById('sL').textContent=l;
+  document.getElementById('sR').textContent=ron;
+}
+
+function updCounts(){
+  const tot=G.length;
+  const c=G.filter(g=>isDone(gW(g.group))).length;
+  const l=G.filter(g=>isLive(gW(g.group))).length;
+  const p=tot-c-l;
+  document.querySelector('[data-f="all"]').textContent='Alle groepen ('+tot+')';
+  document.querySelector('[data-f="complete"]').textContent='Voltooid ('+c+')';
+  document.querySelector('[data-f="live"]').textContent='Vandaag ('+l+')';
+  document.querySelector('[data-f="pending"]').textContent='Aankomend ('+p+')';
+}
+
+function render(){
+  const grid=document.getElementById('groupGrid');
+  grid.innerHTML='';
+  let grps=G;
+  if(flt!=='all') grps=G.filter(g=>{
+    const ws=gW(g.group);
+    if(flt==='complete') return isDone(ws);
+    if(flt==='live')     return isLive(ws);
+    if(flt==='pending')  return !isDone(ws)&&!isLive(ws);
+    return true;
+  });
+  if(!grps.length){
+    grid.innerHTML='<div style="color:var(--ink-3);padding:30px;font-size:12px;">Geen groepen gevonden voor dit filter.</div>';
+    return;
+  }
+  grps.forEach(g=>{
+    const ltr=gl(g.group),ws=gW(g.group),lv=isLive(ws),dn=isDone(ws),sl=sLbl(ws,lv,dn);
+    const card=document.createElement('div');
+    card.className='g-card'+(lv?' is-live':'');
+    const head=document.createElement('div');
+    head.className='g-head';
+    head.innerHTML='<div class="g-label">Groep '+ltr+(lv?'<span class="g-pip"></span>':'')+'</div>'
+      +'<span class="g-status" style="color:'+sl.c+'">'+sl.t+'</span>';
+    card.appendChild(head);
+    g.table.forEach(t=>{
+      const pos=t.position,{st,prob}=calc(pos,t.points,t.playedGames),s=ST[st];
+      const gd=t.goalDifference,gdC=gd>0?'gdp':gd<0?'gdn':'gdz',gdS=gd>0?'+'+gd:''+gd;
+      const pL=prob===100?'100%':prob===0?'—':prob+'%';
+      const row=document.createElement('div');
+      row.className='t-row';
+      row.style.setProperty('--st-clr',s.clr);
+      row.innerHTML=
+        '<span class="t-flag">'+vl(t.team)+'</span>'
+        +'<div class="t-main">'
+          +'<div class="t-name'+(st==='eliminated'?' elim':'')+'">'+nm(t.team)+'</div>'
+          +'<div class="t-note">'+note(t,pos,dn)+'</div>'
+        +'</div>'
+        +'<div class="t-pts-wrap">'
+          +'<div class="t-pts">'+t.points+'</div>'
+          +'<div class="t-gd '+gdC+'">'+gdS+'</div>'
+        +'</div>'
+        +'<div class="t-right">'
+          +'<span class="t-badge">'+s.lbl+'</span>'
+          +'<div class="t-bar-bg"><div class="t-bar-fg" style="width:'+prob+'%;background:'+bk(prob)+'"></div></div>'
+          +'<span class="t-pct">'+pL+'</span>'
+        +'</div>';
+      card.appendChild(row);
+    });
+    const foot=document.createElement('div');
+    foot.className='g-foot';
+    g.table.forEach(t=>{
+      const{st}=calc(t.position,t.points,t.playedGames);
+      const sp=document.createElement('span');
+      sp.className='g-foot-item';
+      sp.style.opacity=st==='eliminated'?'.35':'.7';
+      sp.textContent=vl(t.team)+' '+t.won+'W '+t.draw+'G '+t.lost+'V';
+      foot.appendChild(sp);
+    });
+    card.appendChild(foot);
+    grid.appendChild(card);
+  });
+}
+
+function renderStories(){
+  const ACCS=['#c07010','#1a7a42','#c02020','#1a4db8','#b05a18','#2da05a'];
+  const stories=[];
+  const top=G.flatMap(g=>g.table).sort((a,b)=>b.goalsFor-a.goalsFor)[0];
+  if(top&&top.goalsFor>=4) stories.push({h:vl(top.team)+' '+nm(top.team),b:'Meeste doelpunten — '+top.goalsFor+' in '+top.playedGames+' wedstrijden.'});
+  G.flatMap(g=>g.table.filter(t=>t.position===1&&t.points>=7&&t.playedGames>=3)).slice(0,2).forEach(t=>
+    stories.push({h:vl(t.team)+' '+nm(t.team),b:'Groepswinnaar — '+t.points+'pt, '+t.won+'W '+t.draw+'G '+t.lost+'V.'}));
+  G.flatMap(g=>g.table.filter(t=>t.position===3&&t.points>=3&&t.playedGames<3)).slice(0,2).forEach(t=>
+    stories.push({h:vl(t.team)+' '+nm(t.team),b:'Derde plek met '+t.points+'pt — in de running via derde-plaatspool.'}));
+  G.flatMap(g=>g.table.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated'&&t.playedGames>=2)).slice(0,1).forEach(t=>
+    stories.push({h:vl(t.team)+' '+nm(t.team),b:'Uitgeschakeld — '+t.won+'W '+t.draw+'G '+t.lost+'V · '+t.goalsFor+':'+t.goalsAgainst+'.'}));
+  if(!stories.length) return;
+  document.getElementById('storiesHd').textContent='Verhaallijnen — '+fmtD(new Date().toISOString());
+  const sg=document.getElementById('storyGrid');
+  sg.innerHTML='';
+  stories.slice(0,6).forEach((s,i)=>{
+    const c=ACCS[i%ACCS.length];
+    const d=document.createElement('div');
+    d.className='story-card';
+    d.style.borderTopColor=c;
+    d.innerHTML='<div class="story-hd">'+s.h+'</div><div class="story-body">'+s.b+'</div>';
+    sg.appendChild(d);
+  });
+  document.getElementById('storiesBox').style.display='block';
+}
+
+function sf(btn,key){
+  document.querySelectorAll('.nav-btn[data-f]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  flt=key;
+  render();
+}
+function toggleM(){document.getElementById('methBox').classList.toggle('open');}
+
+setInterval(init,5*60*1000);
+init();
+</script>
+</body>
+</html>
