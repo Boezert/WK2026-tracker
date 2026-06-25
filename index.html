@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA WK 2026 — Groepsfase Tracker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #020617;
+    --surface:   #0f172a;
+    --surface2:  #0a0f1a;
+    --border:    #1e293b;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --dim:       #475569;
+    --qualified: #10b981;
+    --vlikely:   #34d399;
+    --likely:    #f59e0b;
+    --possible:  #f97316;
+    --unlikely:  #f43f5e;
+    --elim:      #334155;
+    --blue:      #3b82f6;
+    --purple:    #a78bfa;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.4;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f172a, #1a2744);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: var(--blue);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .header-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.15;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .refresh-btn:hover { color: var(--text); border-color: var(--blue); }
+  .refresh-btn.spinning { color: var(--blue); border-color: var(--blue); }
+
+  /* stat pills */
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stat-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+    min-width: 80px;
+  }
+  .stat-val { font-size: 24px; font-weight: 800; font-family: monospace; line-height: 1; }
+  .stat-lbl { font-size: 9px; color: var(--muted); letter-spacing: .08em; margin-top: 3px; }
+
+  /* legend */
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── LOADING ── */
+  #loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 14px;
+    display: none;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ERROR ── */
+  #errorBox {
+    background: #450a0a;
+    border: 1px solid #7f1d1d;
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: #fca5a5;
+    margin-bottom: 18px;
+    font-size: 13px;
+    display: none;
+    line-height: 1.6;
+  }
+  #errorBox a { color: #93c5fd; }
+
+  /* ── API KEY WARNING ── */
+  #apiWarning {
+    background: #1c1004;
+    border: 1px solid #92400e;
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: #fcd34d;
+    margin-bottom: 18px;
+    font-size: 13px;
+    display: none;
+    line-height: 1.7;
+  }
+  #apiWarning code {
+    background: #0a0a0a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #86efac;
+  }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .filter-btn {
+    padding: 7px 15px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    letter-spacing: .04em;
+    transition: all .15s;
+  }
+  .filter-btn:hover { color: var(--text); border-color: #334155; }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ── GROUPS GRID ── */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ── GROUP CARD ── */
+  .group-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .group-card.is-live {
+    border-color: #f59e0b30;
+    box-shadow: 0 0 22px #f59e0b12;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .card-head.is-live { background: #1a1200; }
+  .group-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-badge {
+    background: #f59e0b;
+    color: #000;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: .06em;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+  .group-status-lbl { font-size: 10px; color: var(--muted); }
+
+  /* ── TEAM ROW ── */
+  .team-row {
+    padding: 10px 14px 6px;
+    border-bottom: 1px solid #1e293b60;
+    transition: background .1s;
+  }
+  .team-row:last-of-type { border-bottom: none; }
+  .team-row:hover { background: color-mix(in srgb, var(--hovercolor) 4%, transparent); }
+
+  .team-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .flag { font-size: 18px; line-height: 1; flex-shrink: 0; }
+  .team-name { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .team-name.elim { color: var(--dim); text-decoration: line-through; }
+  .team-stats { display: flex; gap: 8px; flex-shrink: 0; font-size: 11px; font-family: monospace; }
+  .pts { font-weight: 800; color: var(--text); }
+  .gd-pos { color: #34d399; }
+  .gd-neg { color: #f43f5e; }
+  .gd-zero { color: var(--muted); }
+  .status-badge {
+    font-size: 9px; font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: .03em;
+  }
+
+  .prob-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: #1e293b;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .6s ease;
+  }
+  .prob-val {
+    font-size: 10px;
+    font-weight: 700;
+    font-family: monospace;
+    width: 34px;
+    text-align: right;
+  }
+
+  .team-wdl {
+    font-size: 9px;
+    color: var(--dim);
+    margin-top: 4px;
+    letter-spacing: .02em;
+  }
+
+  /* ── MATCH SECTION ── */
+  .match-section {
+    border-top: 1px solid var(--border);
+    background: #080d18;
+  }
+  .match-section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--dim);
+    padding: 7px 14px 4px;
+    text-transform: uppercase;
+  }
+  .match-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 10px;
+    padding: 6px 14px;
+    border-top: 1px solid #1e293b40;
+    font-size: 10px;
+  }
+  .match-row.match-live { background: #1a120050; }
+  .match-date { color: var(--dim); font-size: 9px; grid-column: 1 / -1; }
+  .match-teams {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    font-size: 11px;
+  }
+  .match-team-home { text-align: right; }
+  .match-team-away { text-align: left; }
+  .match-score {
+    font-weight: 800;
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    text-align: center;
+    padding: 0 4px;
+  }
+  .match-score.live { color: #f59e0b; }
+  .match-time {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--blue);
+    text-align: center;
+    padding: 0 4px;
+  }
+  .match-status-label {
+    color: var(--muted);
+    font-size: 9px;
+    text-align: right;
+    align-self: center;
+  }
+
+  /* ── CARD FOOTER ── */
+  .card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .card-foot span { font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    text-align: center;
+    color: var(--dim);
+    font-size: 10px;
+    padding: 20px 0 10px;
+    letter-spacing: .04em;
+  }
+  .page-footer a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-eyebrow">🔴 Live · FIFA Wereldkampioenschap 2026</div>
+      <div class="header-title">🏆 Groepsfase Tracker</div>
+      <div class="header-sub" id="lastUpdated">Verbinding maken...</div>
+    </div>
+    <div class="header-right">
+      <button class="refresh-btn" id="refreshBtn" onclick="init()">↻ Vernieuwen</button>
+      <div class="stat-row">
+        <div class="stat-pill">
+          <div class="stat-val" id="statPlayed">—</div>
+          <div class="stat-lbl">GESPEELD</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="statGoals">—</div>
+          <div class="stat-lbl">DOELPUNTEN</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="statQualified">—</div>
+          <div class="stat-lbl">GEKWALIFICEERD</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="statLive" style="color:#f59e0b">—</div>
+          <div class="stat-lbl">LIVE NU</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Gekwalificeerd</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Vrijwel zeker</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Waarschijnlijk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>Mogelijk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f43f5e"></div>Onwaarschijnlijk</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#334155"></div>Uitgeschakeld</div>
+  </div>
+</div>
+
+<!-- apiWarning niet meer nodig, wordt verborgen gehouden -->
+<div id="apiWarning" style="display:none"></div>
+
+<!-- ── FOUTMELDING ── -->
+<div id="errorBox"></div>
+
+<!-- ── LADEN ── -->
+<div id="loading">
+  <div class="spinner"></div>
+  Live data ophalen...
+</div>
+
+<!-- ── FILTERS ── -->
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter(this,'all')">Alle groepen</button>
+  <button class="filter-btn" onclick="setFilter(this,'live')">🔴 Live</button>
+  <button class="filter-btn" onclick="setFilter(this,'complete')">✅ Klaar</button>
+  <button class="filter-btn" onclick="setFilter(this,'pending')">⏳ Nog te spelen</button>
+</div>
+
+<!-- ── GROEPEN ── -->
+<div class="groups-grid" id="groupsGrid"></div>
+
+<div class="page-footer">
+  Data: <a href="https://www.football-data.org" target="_blank">football-data.org</a> · Tijden in Nederlandse tijdzone (CEST) · Ververst automatisch elke 2 minuten
+</div>
+
+<script>
+// Data wordt automatisch bijgewerkt via GitHub Actions — geen API-sleutel nodig hier.
+
+// ── Nederlandse namen (API levert Engels) ────────────────
+const NL_NAMES = {
+  'Germany':'Duitsland','Netherlands':'Nederland','France':'Frankrijk',
+  'Brazil':'Brazilië','Morocco':'Marokko','Scotland':'Schotland',
+  'Belgium':'België','Spain':'Spanje','Norway':'Noorwegen',
+  'Sweden':'Zweden','Austria':'Oostenrijk','Argentina':'Argentinië',
+  'New Zealand':'Nieuw-Zeeland','Saudi Arabia':'Saoedi-Arabië',
+  'Cape Verde':'Kaapverdië','Ivory Coast':'Ivoorkust',
+  "Côte d'Ivoire":'Ivoorkust','DR Congo':'DR Congo',
+  'Congo DR':'DR Congo','Curaçao':'Curaçao','Australia':'Australië',
+  'Japan':'Japan','Tunisia':'Tunesië','Türkiye':'Turkije',
+  'Turkey':'Turkije','Jordan':'Jordanië','Algeria':'Algerije',
+  'Ecuador':'Ecuador','Croatia':'Kroatië','Serbia':'Servië',
+  'Switzerland':'Zwitserland','Slovakia':'Slowakije',
+  'Slovenia':'Slovenië','Ukraine':'Oekraïne',
+  'South Africa':'Zuid-Afrika','South Korea':'Zuid-Korea',
+  'North Korea':'Noord-Korea','Iran':'Iran','Iraq':'Irak',
+  'Egypt':'Egypte','Senegal':'Senegal','Ghana':'Ghana',
+  'Cameroon':'Kameroen','United States':'VS (USA)',
+  'Mexico':'Mexico','Canada':'Canada','Uruguay':'Uruguay',
+  'Paraguay':'Paraguay','Colombia':'Colombia','Venezuela':'Venezuela',
+  'Bolivia':'Bolivia','Chile':'Chili','Honduras':'Honduras',
+  'Costa Rica':'Costa Rica','Panama':'Panama','Haiti':'Haïti',
+  'Uzbekistan':'Oezbekistan','Portugal':'Portugal',
+  'England':'Engeland','Wales':'Wales','Poland':'Polen',
+  'Hungary':'Hongarije','Romania':'Roemenië','Indonesia':'Indonesië',
+  'Vietnam':'Vietnam','Thailand':'Thailand',
+};
+
+// ── Vlaggen via TLA ──────────────────────────────────────
+const FLAGS = {
+  ARG:'🇦🇷',AUS:'🇦🇺',BEL:'🇧🇪',BOL:'🇧🇴',BRA:'🇧🇷',CAN:'🇨🇦',
+  CHI:'🇨🇱',COL:'🇨🇴',CRC:'🇨🇷',CPV:'🇨🇻',CMR:'🇨🇲',CIV:'🇨🇮',
+  CRO:'🇭🇷',CUW:'🇨🇼',ECU:'🇪🇨',EGY:'🇪🇬',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',ESP:'🇪🇸',
+  FRA:'🇫🇷',GER:'🇩🇪',GHA:'🇬🇭',HAI:'🇭🇹',HON:'🇭🇳',HUN:'🇭🇺',
+  IRN:'🇮🇷',IRQ:'🇮🇶',JPN:'🇯🇵',JOR:'🇯🇴',KSA:'🇸🇦',MAR:'🇲🇦',
+  MEX:'🇲🇽',NED:'🇳🇱',NZL:'🇳🇿',NOR:'🇳🇴',PAR:'🇵🇾',PAN:'🇵🇦',
+  POR:'🇵🇹',PRK:'🇰🇵',RSA:'🇿🇦',SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',SEN:'🇸🇳',SRB:'🇷🇸',
+  SLO:'🇸🇮',SVK:'🇸🇰',SUI:'🇨🇭',SWE:'🇸🇪',TUN:'🇹🇳',TUR:'🇹🇷',
+  UKR:'🇺🇦',URU:'🇺🇾',USA:'🇺🇸',UZB:'🇺🇿',VEN:'🇻🇪',WAL:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  ALG:'🇩🇿',AUT:'🇦🇹',CGO:'🇨🇩',KOR:'🇰🇷',IDN:'🇮🇩',VIE:'🇻🇳',
+  THA:'🇹🇭',POL:'🇵🇱',ROU:'🇷🇴',BIH:'🇧🇦',GRE:'🇬🇷',
+};
+
+// ── Status-badges ────────────────────────────────────────
+const STATUS = {
+  qualified:   { label:'Gekwalificeerd',     color:'#10b981', bg:'#10b98115' },
+  very_likely: { label:'Vrijwel zeker',       color:'#34d399', bg:'#34d39915' },
+  likely:      { label:'Waarschijnlijk',      color:'#f59e0b', bg:'#f59e0b15' },
+  possible:    { label:'Mogelijk',            color:'#f97316', bg:'#f9731615' },
+  unlikely:    { label:'Onwaarschijnlijk',    color:'#f43f5e', bg:'#f43f5e15' },
+  eliminated:  { label:'Uitgeschakeld',       color:'#475569', bg:'#47556915' },
+};
+
+// ── Nederlandse datum/tijd ───────────────────────────────
+const TZ = 'Europe/Amsterdam';
+
+function nlDatumTijd(iso) {
+  return new Intl.DateTimeFormat('nl-NL', {
+    timeZone: TZ, weekday:'long', day:'numeric',
+    month:'long', hour:'2-digit', minute:'2-digit'
+  }).format(new Date(iso));
+}
+function nlKort(iso) {
+  return new Intl.DateTimeFormat('nl-NL', {
+    timeZone: TZ, weekday:'short', day:'numeric',
+    month:'short', hour:'2-digit', minute:'2-digit'
+  }).format(new Date(iso));
+}
+function nlTijd(iso) {
+  return new Intl.DateTimeFormat('nl-NL', {
+    timeZone: TZ, hour:'2-digit', minute:'2-digit'
+  }).format(new Date(iso));
+}
+function nlNu() {
+  return new Intl.DateTimeFormat('nl-NL', {
+    timeZone: TZ, weekday:'long', day:'numeric',
+    month:'long', hour:'2-digit', minute:'2-digit'
+  }).format(new Date());
+}
+
+// ── Wedstrijdstatus ──────────────────────────────────────
+const WEDSTRIJD_STATUS = {
+  SCHEDULED: { label:'Gepland',     live:false, done:false },
+  TIMED:     { label:'Gepland',     live:false, done:false },
+  IN_PLAY:   { label:'LIVE 🔴',    live:true,  done:false },
+  PAUSED:    { label:'Rust ⏸',     live:true,  done:false },
+  FINISHED:  { label:'Gespeeld',   live:false, done:true  },
+  SUSPENDED: { label:'Uitgesteld', live:false, done:false },
+  POSTPONED: { label:'Uitgesteld', live:false, done:false },
+  CANCELLED: { label:'Afgelast',   live:false, done:false },
+  AWARDED:   { label:'Toegewezen', live:false, done:true  },
+};
+
+// ── Kansberekening (WK 2026: top 2 door + 8 beste derden) ──
+function berekenStatus(positie, punten, gespeeld, totaalWedstrijden = 3) {
+  const resterend = totaalWedstrijden - gespeeld;
+  const maxPunten = punten + resterend * 3;
+
+  if (gespeeld === totaalWedstrijden) {
+    if (positie === 1 || positie === 2) return { st:'qualified', prob:100 };
+    if (positie === 3) return { st:'possible', prob:30 }; // 8 van 12 derden door
+    return { st:'eliminated', prob:0 };
+  }
+
+  if (maxPunten === 0) return { st:'eliminated', prob:0 };
+
+  if (positie === 1) {
+    if (punten >= 7) return { st:'qualified', prob:100 };
+    if (punten >= 6) return { st:'very_likely', prob:96 };
+    if (punten >= 4) return { st:'very_likely', prob:87 };
+    if (punten >= 3) return { st:'likely', prob:70 };
+    return { st:'possible', prob:48 };
+  }
+  if (positie === 2) {
+    if (punten >= 6) return { st:'very_likely', prob:91 };
+    if (punten >= 4) return { st:'likely', prob:70 };
+    if (punten >= 2) return { st:'possible', prob:44 };
+    return { st:'unlikely', prob:20 };
+  }
+  if (positie === 3) {
+    if (punten >= 4) return { st:'possible', prob:36 };
+    if (punten >= 2) return { st:'unlikely', prob:18 };
+    return { st:'unlikely', prob:7 };
+  }
+  // positie 4
+  if (maxPunten <= 3) return { st:'eliminated', prob:2 };
+  return { st:'unlikely', prob:5 };
+}
+
+function balkKleur(prob) {
+  if (prob === 100) return '#10b981';
+  if (prob >= 80)   return '#34d399';
+  if (prob >= 60)   return '#f59e0b';
+  if (prob >= 30)   return '#f97316';
+  if (prob >= 1)    return '#f43f5e';
+  return '#334155';
+}
+
+function getVlag(team) {
+  return FLAGS[team?.tla] || '🏳️';
+}
+
+function getNaam(team) {
+  return NL_NAMES[team?.name] || NL_NAMES[team?.shortName] || team?.shortName || team?.name || '?';
+}
+
+function groepLetter(str) {
+  return str?.replace('GROUP_', '') || '?';
+}
+
+// ── Toestand ─────────────────────────────────────────────
+let alleWedstrijden = [];
+let alleGroepen     = [];
+let filterSleutel   = 'all';
+let verversTimer    = null;
+
+// ── Data inladen vanuit lokaal data.json (bijgewerkt via GitHub Actions) ──
+async function init() {
+  document.getElementById('apiWarning').style.display = 'none';
+  document.getElementById('errorBox').style.display   = 'none';
+  document.getElementById('loading').style.display    = 'block';
+  document.getElementById('refreshBtn').classList.add('spinning');
+
+  try {
+    // Cache-busting zodat je altijd verse data krijgt
+    const r = await fetch(`./data.json?t=${Date.now()}`);
+
+    if (!r.ok) {
+      throw new Error(
+        `data.json niet gevonden (${r.status}). ` +
+        `Voer de GitHub Action "WK Data Bijwerken" eerst handmatig uit via het Actions-tabblad in je repo.`
+      );
+    }
+
+    const data = await r.json();
+
+    if (!data.standen) {
+      throw new Error('data.json is leeg of heeft een onjuist formaat. Voer de GitHub Action opnieuw uit.');
+    }
+
+    alleWedstrijden = data.wedstrijden?.matches || [];
+    alleGroepen     = (data.standen?.standings || []).filter(s => s.type === 'TOTAL');
+
+    // Tijdstip van laatste update uit het databestand
+    const bijgewerktOp = data.bijgewerkt
+      ? nlDatumTijd(data.bijgewerkt) + ' (UTC+2)'
+      : nlNu();
+    document.getElementById('lastUpdated').textContent =
+      `Bijgewerkt: ${bijgewerktOp} · Ververst elke 30 min via GitHub Actions`;
+
+    updateHeader();
+    renderGroepen();
+
+  } catch (err) {
+    const doos = document.getElementById('errorBox');
+    doos.style.display = 'block';
+    doos.innerHTML = `⚠️ <strong>${err.message}</strong>`;
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('refreshBtn').classList.remove('spinning');
+  }
+}
+
+// ── Header statistieken ──────────────────────────────────
+function updateHeader() {
+  const gespeeld    = alleWedstrijden.filter(m => m.status === 'FINISHED').length;
+  const doelpunten  = alleWedstrijden
+    .filter(m => m.status === 'FINISHED')
+    .reduce((s, m) => s + (m.score?.fullTime?.home || 0) + (m.score?.fullTime?.away || 0), 0);
+  const gekwalificeerd = alleGroepen.reduce((tot, g) => {
+    return tot + g.table.filter(t => t.position <= 2 && t.playedGames >= 3).length;
+  }, 0);
+  const live = alleWedstrijden.filter(m => m.status === 'IN_PLAY' || m.status === 'PAUSED').length;
+
+  document.getElementById('statPlayed').textContent    = gespeeld;
+  document.getElementById('statGoals').textContent     = doelpunten;
+  document.getElementById('statQualified').textContent = gekwalificeerd;
+  document.getElementById('statLive').textContent      = live > 0 ? `${live} 🔴` : '0';
+}
+
+// ── Filter: welke wedstrijden bij deze groep ─────────────
+function groepWedstrijden(groepStr) {
+  return alleWedstrijden.filter(m => m.group === groepStr);
+}
+
+function groepIsLive(wedstrijden) {
+  return wedstrijden.some(m => m.status === 'IN_PLAY' || m.status === 'PAUSED');
+}
+
+function groepIsKlaar(wedstrijden) {
+  return wedstrijden.length > 0 && wedstrijden.every(m =>
+    ['FINISHED','AWARDED'].includes(m.status));
+}
+
+function groepStatusLabel(wedstrijden, isLive, isKlaar) {
+  if (isLive)  return { label:'Bezig', color:'#f59e0b' };
+  if (isKlaar) return { label:'Klaar', color:'#10b981' };
+  const volgende = wedstrijden
+    .filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED')
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate))[0];
+  if (volgende) return { label:`Volgende: ${nlKort(volgende.utcDate)}`, color:'#64748b' };
+  return { label:'Lopend', color:'#64748b' };
+}
+
+// ── Render alle groepen ──────────────────────────────────
+function renderGroepen() {
+  const raster = document.getElementById('groupsGrid');
+  raster.innerHTML = '';
+
+  let groepen = alleGroepen;
+  if (filterSleutel !== 'all') {
+    groepen = alleGroepen.filter(g => {
+      const w = groepWedstrijden(g.group);
+      if (filterSleutel === 'live')     return groepIsLive(w);
+      if (filterSleutel === 'complete') return groepIsKlaar(w);
+      if (filterSleutel === 'pending')  return !groepIsLive(w) && !groepIsKlaar(w);
+      return true;
+    });
+  }
+
+  if (groepen.length === 0) {
+    raster.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:30px;grid-column:1/-1">
+      Geen groepen gevonden voor dit filter.</div>`;
+    return;
+  }
+
+  groepen.forEach(g => {
+    const letter    = groepLetter(g.group);
+    const wedstrijden = groepWedstrijden(g.group);
+    const isLive    = groepIsLive(wedstrijden);
+    const isKlaar   = groepIsKlaar(wedstrijden);
+    const gs        = groepStatusLabel(wedstrijden, isLive, isKlaar);
+
+    const kaart = document.createElement('div');
+    kaart.className = 'group-card' + (isLive ? ' is-live' : '');
+
+    // ── Kaart hoofd ──
+    const hoofd = document.createElement('div');
+    hoofd.className = 'card-head' + (isLive ? ' is-live' : '');
+    hoofd.innerHTML = `
+      <div class="group-label">
+        GROEP ${letter}
+        ${isLive ? '<span class="live-badge">LIVE</span>' : ''}
+      </div>
+      <span class="group-status-lbl" style="color:${gs.color}">${gs.label}</span>`;
+    kaart.appendChild(hoofd);
+
+    // ── Teams ──
+    g.table.forEach(t => {
+      const { st, prob } = berekenStatus(t.position, t.points, t.playedGames);
+      const s      = STATUS[st];
+      const gd     = t.goalDifference;
+      const gdKlas = gd > 0 ? 'gd-pos' : gd < 0 ? 'gd-neg' : 'gd-zero';
+      const gdStr  = gd > 0 ? `+${gd}` : `${gd}`;
+      const probLabel = prob === 100 ? '100%' : prob === 0 ? '—' : `${prob}%`;
+      const vlag   = getVlag(t.team);
+      const naam   = getNaam(t.team);
+
+      const rij = document.createElement('div');
+      rij.className = 'team-row';
+      rij.style.setProperty('--hovercolor', s.color);
+      rij.innerHTML = `
+        <div class="team-top">
+          <span class="flag">${vlag}</span>
+          <span class="team-name${st === 'eliminated' ? ' elim' : ''}">${naam}</span>
+          <div class="team-stats">
+            <span class="pts">${t.points}pt</span>
+            <span class="${gdKlas}">${gdStr}</span>
+          </div>
+          <span class="status-badge"
+            style="color:${s.color};border-color:${s.color}40;background:${s.bg}">
+            ${s.label}
+          </span>
+        </div>
+        <div class="prob-row">
+          <div class="bar-track">
+            <div class="bar-fill"
+              style="width:${prob}%;background:${balkKleur(prob)}${
+                isLive && prob > 50 ? ';box-shadow:0 0 6px ' + s.color : ''}">
+            </div>
+          </div>
+          <span class="prob-val"
+            style="color:${prob===100?'#10b981':prob===0?'#334155':s.color}">
+            ${probLabel}
+          </span>
+        </div>
+        <div class="team-wdl">
+          ${t.won}W ${t.draw}G ${t.lost}V · ${t.goalsFor}:${t.goalsAgainst} · ${t.playedGames}/3 gespeeld
+        </div>`;
+      kaart.appendChild(rij);
+    });
+
+    // ── Wedstrijden ──
+    if (wedstrijden.length > 0) {
+      const sectie = document.createElement('div');
+      sectie.className = 'match-section';
+      sectie.innerHTML = '<div class="match-section-title">Wedstrijden</div>';
+
+      const gesorteerd = [...wedstrijden].sort((a, b) =>
+        new Date(a.utcDate) - new Date(b.utcDate));
+
+      gesorteerd.forEach(m => {
+        const ws       = WEDSTRIJD_STATUS[m.status] || { label:m.status, live:false, done:false };
+        const thuis    = getNaam(m.homeTeam);
+        const uit      = getNaam(m.awayTeam);
+        const thuisVlag = getVlag(m.homeTeam || {});
+        const uitVlag   = getVlag(m.awayTeam || {});
+
+        let scoreHtml;
+        if (ws.done || ws.live) {
+          const th = m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? '?';
+          const tu = m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? '?';
+          scoreHtml = `<span class="match-score${ws.live ? ' live' : ''}">${th} – ${tu}</span>`;
+        } else {
+          scoreHtml = `<span class="match-time">${nlTijd(m.utcDate)}</span>`;
+        }
+
+        const kleurStatus = ws.live ? '#f59e0b' : ws.done ? '#10b981' : '#475569';
+
+        const wRij = document.createElement('div');
+        wRij.className = 'match-row' + (ws.live ? ' match-live' : '');
+        wRij.innerHTML = `
+          <div class="match-date">${nlDatumTijd(m.utcDate)}</div>
+          <div class="match-teams">
+            <span class="match-team-home">${thuisVlag} ${thuis}</span>
+            ${scoreHtml}
+            <span class="match-team-away">${uit} ${uitVlag}</span>
+          </div>
+          <span class="match-status-label" style="color:${kleurStatus}">${ws.label}</span>`;
+        sectie.appendChild(wRij);
+      });
+
+      kaart.appendChild(sectie);
+    }
+
+    // ── Kaart voet ──
+    const voet = document.createElement('div');
+    voet.className = 'card-foot';
+    g.table.forEach(t => {
+      const { st } = berekenStatus(t.position, t.points, t.playedGames);
+      const span = document.createElement('span');
+      span.style.opacity = st === 'eliminated' ? '0.35' : '0.7';
+      span.textContent = `${getVlag(t.team)} ${t.won}W ${t.draw}G ${t.lost}V`;
+      voet.appendChild(span);
+    });
+    kaart.appendChild(voet);
+
+    raster.appendChild(kaart);
+  });
+}
+
+// ── Filter ───────────────────────────────────────────────
+function setFilter(btn, sleutel) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterSleutel = sleutel;
+  renderGroepen();
+}
+
+// ── Auto-ververst elke 2 minuten ─────────────────────────
+function startAutoRefresh() {
+  if (verversTimer) clearInterval(verversTimer);
+  verversTimer = setInterval(init, 2 * 60 * 1000);
+}
+
+// ── Start ────────────────────────────────────────────────
+init();
+startAutoRefresh();
+</script>
+</body>
+</html>
