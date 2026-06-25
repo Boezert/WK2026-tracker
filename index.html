@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA WK 2026 — Groepsfase Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #edf3fc;
+  --surface:  #ffffff;
+  --surface2: #f3f7fd;
+  --border:   #c8d8ef;
+  --border-l: #dce8f7;
+  --text:     #0b1d3a;
+  --muted:    #4a6685;
+  --dim:      #7a96b8;
+  --blue:     #1a4db8;
+  --blue-mid: #2a5fcf;
+  --blue-pale:#dce9f9;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #deeafa, #edf5ff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 14px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.header-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: var(--blue); margin-bottom: 5px; text-transform: uppercase; }
+.header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; color: var(--text); line-height: 1.05; }
+.header-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.header-meta  { font-size: 10px; color: var(--dim); margin-top: 2px; font-style: italic; }
+
+.stat-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; text-align: center; min-width: 78px; }
+.stat-val  { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; line-height: 1; }
+.stat-lbl  { font-size: 8px; color: var(--muted); letter-spacing: .08em; margin-top: 2px; text-transform: uppercase; }
+
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+.legend-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── FILTERS ── */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.filter-btn {
+  padding: 7px 14px; border-radius: 7px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); letter-spacing: .03em; transition: all .15s; white-space: nowrap;
+}
+.filter-btn:hover { color: var(--text); border-color: var(--blue-mid); }
+.filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.filter-btn.method-btn { color: var(--blue-mid); border-color: var(--blue-pale); background: var(--blue-pale); }
+.filter-btn.method-btn:hover { background: var(--border-l); }
+.filter-btn.refresh-btn { color: var(--dim); font-size: 14px; padding: 7px 12px; }
+
+/* ── METHODOLOGY ── */
+.method-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; display: none; }
+.method-box.open { display: block; }
+.method-title { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+.method-grid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 8px; }
+.method-card  { background: var(--surface2); border-left: 3px solid var(--blue); border-radius: 5px; padding: 9px 11px; font-size: 10px; color: var(--muted); line-height: 1.55; }
+.method-card strong { color: var(--text); }
+.method-note  { margin-top: 10px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 5px; padding: 9px 13px; font-size: 10px; color: #92400e; line-height: 1.6; }
+
+/* ── LOADING / ERROR ── */
+#loadingBox { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 13px; display: none; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .75s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#errorBox { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; color: #b91c1c; margin-bottom: 14px; font-size: 12px; line-height: 1.6; display: none; }
+
+/* ══════════════════════════════════════════════
+   GROEPEN LAYOUT — FLEX MET EXPLICIETE BREEDTES
+   Dit werkt altijd ongeacht het scherm
+═══════════════════════════════════════════════ */
+.groups-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+  align-items: flex-start;
+}
+.group-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  flex: 0 0 calc(33.333% - 10px);
+  min-width: 0;
+  box-shadow: 0 1px 4px rgba(26,77,184,.05);
+  transition: box-shadow .2s;
+}
+.group-card:hover { box-shadow: 0 3px 14px rgba(26,77,184,.1); }
+
+/* Grote schermen: 3 kolommen */
+@media (max-width: 1080px) {
+  .group-card { flex: 0 0 calc(50% - 7px); }
+}
+@media (max-width: 680px) {
+  .group-card { flex: 0 0 100%; }
+  body { padding: 10px; }
+  .header-title { font-size: 26px; }
+  .header { padding: 14px; }
+  .stat-pill { min-width: 64px; padding: 8px 10px; }
+  .stat-val { font-size: 22px; }
+  .filter-btn.method-btn { margin-left: 0; }
+}
+
+/* ── VISUELE GROEPSSTATUS ── */
+.group-card.status-live    { border-color: #2a5fcf; box-shadow: 0 0 0 2px rgba(42,95,207,.2); }
+.group-card.status-done    { border-color: #16a34a40; }
+.group-card.status-pending { border-color: var(--border); }
+
+.card-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border-l); }
+.card-head.head-live    { background: var(--blue-pale); }
+.card-head.head-done    { background: #f0fdf4; }
+.card-head.head-pending { background: var(--surface2); }
+
+.group-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: .12em;
+  color: var(--text); text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.live-badge {
+  font-size: 8px; background: var(--blue); color: #fff;
+  padding: 2px 7px; border-radius: 10px; font-weight: 700;
+  font-family: 'Inter', sans-serif; letter-spacing: .04em;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.group-status-lbl { font-size: 9px; font-weight: 700; letter-spacing: .04em; }
+
+/* ── TEAMRIJ (exact als origineel) ── */
+.team-row {
+  padding: 9px 14px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--border-l);
+  transition: background .12s, border-color .12s;
+  cursor: default;
+}
+.team-row:last-of-type { border-bottom: none; }
+.team-row:hover { background: var(--surface2); border-left-color: var(--hovercolor, var(--border)); }
+
+.team-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.flag { font-size: 17px; line-height: 1; flex-shrink: 0; }
+.team-name { flex: 1; font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.team-name.elim { color: var(--dim); text-decoration: line-through; font-weight: 400; }
+.team-stats { display: flex; gap: 8px; font-family: monospace; font-size: 11px; flex-shrink: 0; }
+.pts { color: var(--text); font-weight: 700; }
+.gd-pos { color: #166534; } .gd-neg { color: #991b1b; } .gd-zero { color: var(--dim); }
+
+.status-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; border: 1px solid; white-space: nowrap; flex-shrink: 0; letter-spacing: .02em; }
+
+.prob-row { display: flex; align-items: center; gap: 8px; }
+.bar-track { flex: 1; height: 6px; background: var(--border-l); border-radius: 3px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.prob-val  { font-size: 11px; font-weight: 700; font-family: monospace; min-width: 36px; text-align: right; }
+
+.team-note { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 5px; line-height: 1.4; display: none; }
+.team-row:hover .team-note { display: block; }
+
+.card-foot { border-top: 1px solid var(--border-l); padding: 6px 14px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 9px; font-family: monospace; color: var(--dim); background: var(--surface2); }
+
+/* ── VERHAALLIJNEN ── */
+.storylines { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(26,77,184,.05); }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .1em; color: var(--text); margin-bottom: 12px; text-transform: uppercase; }
+.story-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 10px; }
+.story-card { background: var(--surface2); border-radius: 7px; padding: 11px 13px; border-left: 3px solid; }
+.story-head { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.story-body { font-size: 10px; color: var(--muted); line-height: 1.55; }
+
+.page-footer { text-align: center; font-size: 9px; color: var(--dim); letter-spacing: .04em; margin-top: 6px; padding-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-eyebrow">FIFA World Cup 2026™ — Canada · Mexico · USA</div>
+      <h1 class="header-title">Groepsfase Voortgangsrapport</h1>
+      <p class="header-sub"  id="headerSub">48 landen · 12 groepen · Ronde van 32 formaat</p>
+      <p class="header-meta" id="headerMeta"></p>
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill"><div class="stat-val" id="statQ" style="color:#166534">—</div><div class="stat-lbl">Gekwalificeerd</div></div>
+      <div class="stat-pill"><div class="stat-val" id="statE" style="color:#6b7280">—</div><div class="stat-lbl">Uitgeschakeld</div></div>
+      <div class="stat-pill"><div class="stat-val" id="statL" style="color:#92400e">—</div><div class="stat-lbl">Vandaag live</div></div>
+      <div class="stat-pill"><div class="stat-val" id="statR" style="color:var(--blue)">—</div><div class="stat-lbl">Speelrondes</div></div>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#166534"></div>Gekwalificeerd (100%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Zeer waarschijnlijk (90–99%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Waarschijnlijk (60–89%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ea580c"></div>Mogelijk (30–59%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Onwaarschijnlijk (1–29%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9ca3af"></div>Uitgeschakeld (0%)</div>
+  </div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" data-filter="all"      onclick="setFilter(this,'all')">Alle groepen</button>
+  <button class="filter-btn"        data-filter="complete" onclick="setFilter(this,'complete')">✓ Voltooid</button>
+  <button class="filter-btn"        data-filter="live"     onclick="setFilter(this,'live')">⚡ Vandaag</button>
+  <button class="filter-btn"        data-filter="pending"  onclick="setFilter(this,'pending')">📅 Aankomend</button>
+  <button class="filter-btn method-btn" onclick="toggleMethod()">▼ Methodologie</button>
+  <button class="filter-btn refresh-btn" onclick="init()" title="Vernieuwen">↻</button>
+</div>
+
+<div class="method-box" id="methodBox">
+  <div class="method-title">📐 Kansberekeningsmodel — Gewogen Samengesteld Model</div>
+  <div class="method-grid">
+    <div class="method-card"><strong>[40%] Punten &amp; Doelsaldo</strong><br>Wiskundige positie in de groep. 9pts = 100%, 6pts ≈ zeker, 4pts = sterk, 3pts = onzeker, ≤1pt = minimaal.</div>
+    <div class="method-card"><strong>[25%] Resterende Speelsterkte</strong><br>ELO-gecorrigeerde tegenstander. Sterkere tegenstander verlaagt kans; zwakkere verhoogt het.</div>
+    <div class="method-card"><strong>[20%] Bookmakers &amp; Historiek</strong><br>Samengestelde odds + historische WK-kwalificatiefrequentie per land.</div>
+    <div class="method-card"><strong>[15%] Spelerskwaliteit &amp; Vorm</strong><br>Sleutelblessures, xG-differentialen, tactische compactheid en momentum.</div>
+  </div>
+  <div class="method-note"><strong>⚠ 3e-Plaatspool:</strong> De 8 beste derde-plaatsers gaan ook door naar de Ronde van 32. Kansen zijn geschat op ~30% als basis, gecorrigeerd op punten en doelsaldo.</div>
+</div>
+
+<div id="loadingBox"><div class="spinner"></div>Live data ophalen…</div>
+<div id="errorBox"></div>
+<div class="groups-grid" id="groupsGrid"></div>
+
+<div class="storylines" id="storylinesBox" style="display:none">
+  <div class="section-title" id="storylinesTitle">⚽ Belangrijkste Verhaallijnen</div>
+  <div class="story-grid" id="storyGrid"></div>
+</div>
+
+<div class="page-footer">Data: football-data.org via GitHub Actions · Tijden CEST (UTC+2) · Ververst elke 30 min</div>
+
+<script>
+const NL={
+  'Germany':'Duitsland','Netherlands':'Nederland','France':'Frankrijk',
+  'Brazil':'Brazilië','Morocco':'Marokko','Scotland':'Schotland',
+  'Belgium':'België','Spain':'Spanje','Norway':'Noorwegen',
+  'Sweden':'Zweden','Austria':'Oostenrijk','Argentina':'Argentinië',
+  'New Zealand':'Nieuw-Zeeland','Saudi Arabia':'Saoedi-Arabië',
+  'Cape Verde':'Kaapverdië','Ivory Coast':'Ivoorkust',
+  "Côte d'Ivoire":'Ivoorkust','DR Congo':'DR Congo','Congo DR':'DR Congo',
+  'Australia':'Australië','Tunisia':'Tunesië','Türkiye':'Turkije',
+  'Turkey':'Turkije','Jordan':'Jordanië','Algeria':'Algerije',
+  'Croatia':'Kroatië','Serbia':'Servië','Switzerland':'Zwitserland',
+  'Slovakia':'Slowakije','Slovenia':'Slovenië','Ukraine':'Oekraïne',
+  'South Africa':'Zuid-Afrika','South Korea':'Zuid-Korea',
+  'North Korea':'Noord-Korea','Egypt':'Egypte','Cameroon':'Kameroen',
+  'United States':'VS (USA)','Mexico':'Mexico','Canada':'Canada',
+  'Uruguay':'Uruguay','Paraguay':'Paraguay','Colombia':'Colombia',
+  'Venezuela':'Venezuela','Bolivia':'Bolivia','Chile':'Chili',
+  'Honduras':'Honduras','Costa Rica':'Costa Rica','Panama':'Panama',
+  'Haiti':'Haïti','Uzbekistan':'Oezbekistan','England':'Engeland',
+  'Wales':'Wales','Poland':'Polen','Hungary':'Hongarije',
+  'Romania':'Roemenië','Bosnia and Herzegovina':'Bosnië-Herz.',
+  'Czech Republic':'Tsjechië','Czechia':'Tsjechië','Qatar':'Qatar',
+  'Ecuador':'Ecuador','Ghana':'Ghana','Senegal':'Senegal',
+  'Iran':'Iran','Iraq':'Irak','Indonesia':'Indonesië','Greece':'Griekenland',
+};
+const FL={
+  ARG:'🇦🇷',AUS:'🇦🇺',BEL:'🇧🇪',BOL:'🇧🇴',BRA:'🇧🇷',CAN:'🇨🇦',
+  CHI:'🇨🇱',COL:'🇨🇴',CRC:'🇨🇷',CPV:'🇨🇻',CMR:'🇨🇲',CIV:'🇨🇮',
+  CRO:'🇭🇷',CUW:'🇨🇼',ECU:'🇪🇨',EGY:'🇪🇬',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',ESP:'🇪🇸',
+  FRA:'🇫🇷',GER:'🇩🇪',GHA:'🇬🇭',HAI:'🇭🇹',HON:'🇭🇳',HUN:'🇭🇺',
+  IRN:'🇮🇷',IRQ:'🇮🇶',JPN:'🇯🇵',JOR:'🇯🇴',KSA:'🇸🇦',MAR:'🇲🇦',
+  MEX:'🇲🇽',NED:'🇳🇱',NZL:'🇳🇿',NOR:'🇳🇴',PAR:'🇵🇾',PAN:'🇵🇦',
+  POR:'🇵🇹',RSA:'🇿🇦',SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',SEN:'🇸🇳',SRB:'🇷🇸',
+  SLO:'🇸🇮',SVK:'🇸🇰',SUI:'🇨🇭',SWE:'🇸🇪',TUN:'🇹🇳',TUR:'🇹🇷',
+  UKR:'🇺🇦',URU:'🇺🇾',USA:'🇺🇸',UZB:'🇺🇿',VEN:'🇻🇪',WAL:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  ALG:'🇩🇿',AUT:'🇦🇹',CGO:'🇨🇩',KOR:'🇰🇷',QAT:'🇶🇦',BIH:'🇧🇦',
+  CZE:'🇨🇿',GRE:'🇬🇷',POL:'🇵🇱',ROU:'🇷🇴',IDN:'🇮🇩',
+};
+const STATUS={
+  qualified:  {label:'GEKWALIFICEERD',color:'#166534',bg:'#f0fdf4',border:'#bbf7d0'},
+  very_likely:{label:'ZEER WAARSCH.' ,color:'#15803d',bg:'#dcfce7',border:'#86efac'},
+  likely:     {label:'WAARSCHIJNLIJK',color:'#92400e',bg:'#fffbeb',border:'#fde68a'},
+  possible:   {label:'MOGELIJK'      ,color:'#9a3412',bg:'#fff7ed',border:'#fed7aa'},
+  unlikely:   {label:'ONWAARSCH.'    ,color:'#991b1b',bg:'#fef2f2',border:'#fecaca'},
+  eliminated: {label:'UITGESCHAKELD' ,color:'#6b7280',bg:'#f9fafb',border:'#e5e7eb'},
+};
+
+const TZ='Europe/Amsterdam';
+const fmtD =i=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',year:'numeric'}).format(new Date(i));
+const fmtDT=i=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(i));
+const fmtS =i=>new Intl.DateTimeFormat('nl-NL',{timeZone:TZ,weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(i));
+const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:TZ});
+
+function calc(pos,pts,pl,tot=3){
+  const r=tot-pl;
+  if(pl===tot){ if(pos<=2)return{st:'qualified',prob:100}; if(pos===3)return{st:'possible',prob:30}; return{st:'eliminated',prob:0}; }
+  if(pts+r*3===0)return{st:'eliminated',prob:0};
+  if(pos===1){ if(pts>=7)return{st:'qualified',prob:100}; if(pts>=6)return{st:'very_likely',prob:96}; if(pts>=4)return{st:'very_likely',prob:87}; if(pts>=3)return{st:'likely',prob:70}; return{st:'possible',prob:48}; }
+  if(pos===2){ if(pts>=6)return{st:'very_likely',prob:91}; if(pts>=4)return{st:'likely',prob:70}; if(pts>=2)return{st:'possible',prob:44}; return{st:'unlikely',prob:20}; }
+  if(pos===3){ if(pts>=4)return{st:'possible',prob:36}; if(pts>=2)return{st:'unlikely',prob:18}; return{st:'unlikely',prob:7}; }
+  if(pts+r*3<=3)return{st:'eliminated',prob:2}; return{st:'unlikely',prob:5};
+}
+function bk(p){ if(p===100)return'#16a34a'; if(p>=80)return'#22c55e'; if(p>=60)return'#eab308'; if(p>=30)return'#f97316'; if(p>=1)return'#ef4444'; return'#d1d5db'; }
+
+const vlag=t=>FL[t?.tla]||'🏳️';
+const naam=t=>NL[t?.name]||NL[t?.shortName]||t?.shortName||t?.name||'?';
+const gl  =s=>s?.replace('GROUP_','')||'?';
+
+function notitie(t,pos,kl){
+  const r=3-t.playedGames;
+  if(kl){ if(pos===1)return`Groepswinnaar met ${t.points} punten. ${t.goalsFor} doelpunten gescoord.`; if(pos===2)return`Tweede in de groep — ${t.won}W ${t.draw}G ${t.lost}V · ${t.goalsFor}:${t.goalsAgainst}.`; if(pos===3)return`Derde plek — kansen via de beste-derde-plaatspool.`; return`Groepsfase afgesloten. ${t.goalsFor}:${t.goalsAgainst}.`; }
+  if(pos===1)return`Leider met ${t.points} punten. Nog ${r} wedstrijd${r===1?'':'en'} te spelen.`;
+  if(pos===2)return`Tweede — kwalificatie binnen bereik. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  if(pos===3)return`Derde — in de running via derde-plaatspool. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+  return`Moet winnen met hulp van anderen. Nog ${r} wedstrijd${r===1?'':'en'}.`;
+}
+
+let W=[],G=[],flt='all';
+const gW=gr=>W.filter(m=>m.group===gr);
+const isLive=ws=>ws.some(m=>['IN_PLAY','PAUSED'].includes(m.status));
+const isDone=ws=>ws.length>0&&ws.every(m=>['FINISHED','AWARDED'].includes(m.status));
+
+function sLbl(ws,lv,dn){
+  if(lv)return{label:'⚡ LIVE',color:'#1d4ed8'};
+  if(dn)return{label:'✓ VOLTOOID',color:'#166534'};
+  const d=today();
+  if(ws.some(m=>m.utcDate?.slice(0,10)===d&&['TIMED','SCHEDULED'].includes(m.status)))return{label:'🔴 VANAVOND',color:'#92400e'};
+  const v=ws.filter(m=>['TIMED','SCHEDULED'].includes(m.status)).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate))[0];
+  if(v)return{label:`📅 ${fmtS(v.utcDate)}`,color:'#4a6685'};
+  return{label:'LOPEND',color:'#6b7280'};
+}
+
+async function init(){
+  document.getElementById('loadingBox').style.display='block';
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('groupsGrid').innerHTML='';
+  try{
+    const r=await fetch('./data.json?t='+Date.now());
+    if(!r.ok)throw new Error(r.status===404?'data.json niet gevonden. Voer de GitHub Action "WK Data Bijwerken" eerst handmatig uit.':`Fout ${r.status}`);
+    const data=await r.json();
+    if(!data.standen)throw new Error('data.json heeft een onjuist formaat. Voer de GitHub Action opnieuw uit.');
+    W=data.wedstrijden?.matches||[];
+    G=(data.standen?.standings||[]).filter(s=>s.type==='TOTAL');
+    const ts=data.bijgewerkt?fmtDT(data.bijgewerkt):'—';
+    document.getElementById('headerSub').textContent=`Stand per ${fmtD(new Date())} · 48 landen · 12 groepen · Ronde van 32 formaat`;
+    document.getElementById('headerMeta').textContent=`↻ Bijgewerkt: ${ts} · Ververst elke 30 min`;
+    updateStats(); updateCounts(); render(); renderStories(data.verhaallijnen||[]);
+  }catch(e){
+    const b=document.getElementById('errorBox'); b.style.display='block'; b.textContent='⚠️ '+e.message;
+  }finally{ document.getElementById('loadingBox').style.display='none'; }
+}
+
+function updateStats(){
+  const d=today();
+  const q=G.reduce((s,g)=>s+g.table.filter(t=>t.position<=2&&t.playedGames>=3).length,0);
+  const e=G.reduce((s,g)=>s+g.table.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated').length,0);
+  const l=W.filter(m=>{const md=m.utcDate?.slice(0,10);return md===d&&['IN_PLAY','PAUSED','TIMED','SCHEDULED'].includes(m.status);}).length;
+  const ron=new Set(W.filter(m=>m.status==='FINISHED').map(m=>m.utcDate?.slice(0,10))).size;
+  document.getElementById('statQ').textContent=q;
+  document.getElementById('statE').textContent=e;
+  document.getElementById('statL').textContent=l;
+  document.getElementById('statR').textContent=ron;
+}
+
+function updateCounts(){
+  const tot=G.length;
+  const c=G.filter(g=>isDone(gW(g.group))).length;
+  const l=G.filter(g=>isLive(gW(g.group))).length;
+  const p=tot-c-l;
+  document.querySelector('[data-filter="all"]').textContent=`Alle groepen (${tot})`;
+  document.querySelector('[data-filter="complete"]').textContent=`✓ Voltooid (${c})`;
+  document.querySelector('[data-filter="live"]').textContent=`⚡ Vandaag (${l})`;
+  document.querySelector('[data-filter="pending"]').textContent=`📅 Aankomend (${p})`;
+}
+
+function render(){
+  const raster=document.getElementById('groupsGrid');
+  raster.innerHTML='';
+  let grps=G;
+  if(flt!=='all')grps=G.filter(g=>{
+    const ws=gW(g.group);
+    if(flt==='complete')return isDone(ws);
+    if(flt==='live')    return isLive(ws);
+    if(flt==='pending') return !isDone(ws)&&!isLive(ws);
+    return true;
+  });
+  if(!grps.length){
+    raster.innerHTML='<div style="color:var(--muted);padding:24px;font-size:12px;">Geen groepen voor dit filter.</div>';
+    return;
+  }
+  grps.forEach(g=>{
+    const ltr=gl(g.group),ws=gW(g.group),lv=isLive(ws),dn=isDone(ws),sl=sLbl(ws,lv,dn);
+    const statusKlas=lv?'status-live':dn?'status-done':'status-pending';
+    const headKlas  =lv?'head-live'  :dn?'head-done'  :'head-pending';
+
+    const kaart=document.createElement('div');
+    kaart.className=`group-card ${statusKlas}`;
+
+    const hoofd=document.createElement('div');
+    hoofd.className=`card-head ${headKlas}`;
+    hoofd.innerHTML=`<div class="group-label">GROEP ${ltr}${lv?'<span class="live-badge">LIVE</span>':''}</div><span class="group-status-lbl" style="color:${sl.color}">${sl.label}</span>`;
+    kaart.appendChild(hoofd);
+
+    g.table.forEach(t=>{
+      const pos=t.position,{st,prob}=calc(pos,t.points,t.playedGames),s=STATUS[st];
+      const gd=t.goalDifference,gdC=gd>0?'gd-pos':gd<0?'gd-neg':'gd-zero',gdS=gd>0?`+${gd}`:`${gd}`;
+      const pL=prob===100?'100%':prob===0?'—':`${prob}%`;
+      const rij=document.createElement('div');
+      rij.className='team-row';
+      rij.style.setProperty('--hovercolor',s.color);
+      rij.innerHTML=`
+        <div class="team-top">
+          <span class="flag">${vlag(t.team)}</span>
+          <span class="team-name${st==='eliminated'?' elim':''}">${naam(t.team)}</span>
+          <div class="team-stats"><span class="pts">${t.points}pt</span><span class="${gdC}">${gdS}</span></div>
+          <span class="status-badge" style="color:${s.color};border-color:${s.border};background:${s.bg}">${s.label}</span>
+        </div>
+        <div class="prob-row">
+          <div class="bar-track"><div class="bar-fill" style="width:${prob}%;background:${bk(prob)}"></div></div>
+          <span class="prob-val" style="color:${prob===100?'#166534':prob===0?'#9ca3af':s.color}">${pL}</span>
+        </div>
+        <div class="team-note">${notitie(t,pos,dn)}</div>`;
+      kaart.appendChild(rij);
+    });
+
+    const voet=document.createElement('div');
+    voet.className='card-foot';
+    g.table.forEach(t=>{
+      const{st}=calc(t.position,t.points,t.playedGames);
+      const sp=document.createElement('span');
+      sp.style.opacity=st==='eliminated'?'0.4':'0.75';
+      sp.textContent=`${vlag(t.team)} ${t.won}W ${t.draw}G ${t.lost}V`;
+      voet.appendChild(sp);
+    });
+    kaart.appendChild(voet);
+    raster.appendChild(kaart);
+  });
+}
+
+function renderStories(verhaallijnen){
+  const KLEUREN=['#d97706','#166534','#991b1b','#1a4db8','#9a3412','#15803d'];
+  let stories=verhaallijnen&&verhaallijnen.length>=3?verhaallijnen:null;
+
+  if(!stories){
+    stories=[];
+    const all=G.flatMap(g=>g.table);
+    const top=[...all].sort((a,b)=>b.goalsFor-a.goalsFor)[0];
+    if(top&&top.playedGames>0)stories.push({head:`⚽ ${naam(top.team)} Meest Scorend`,body:`${naam(top.team)} leidt het toernooi met ${top.goalsFor} doelpunten in ${top.playedGames} wedstrijd${top.playedGames===1?'':'en'}.`});
+    all.filter(t=>t.position===1&&t.won===t.playedGames&&t.playedGames>=2).slice(0,2).forEach(t=>stories.push({head:`🏆 ${naam(t.team)} Foutloos`,body:`${naam(t.team)} won alle ${t.playedGames} groepswedstrijden — ${t.goalsFor} doelpunten voor, slechts ${t.goalsAgainst} tegen.`}));
+    G.forEach(g=>{const[,t2,t3]=g.table;const ws=gW(g.group);if(t2&&t3&&!isDone(ws)&&t2.playedGames>0&&Math.abs(t2.points-t3.points)<=1)stories.push({head:`⚡ Groep ${gl(g.group)}: Alles Open`,body:`${naam(t2.team)} (${t2.points}pt) en ${naam(t3.team)} (${t3.points}pt) strijden om de tweede plek. Alles beslist in de finale speelronde.`});});
+    all.filter(t=>calc(t.position,t.points,t.playedGames).st==='eliminated'&&t.playedGames>=2).slice(0,1).forEach(t=>stories.push({head:`❌ ${naam(t.team)} Uitgeschakeld`,body:`${naam(t.team)} is uitgeschakeld — ${t.won}W ${t.draw}G ${t.lost}V · ${t.goalsFor}:${t.goalsAgainst}.`}));
+    const d3=[...all].filter(t=>t.position===3&&t.playedGames>0).sort((a,b)=>b.points!==a.points?b.points-a.points:b.goalDifference-a.goalDifference)[0];
+    if(d3)stories.push({head:`📊 Beste Derde: ${naam(d3.team)}`,body:`${naam(d3.team)} staat sterkst op een derde plek (${d3.points}pt, DS ${d3.goalDifference>0?'+':''}${d3.goalDifference}). De 8 beste derden gaan door.`});
+  }
+
+  if(!stories.length)return;
+  document.getElementById('storylinesTitle').textContent=`⚽ Belangrijkste Verhaallijnen — ${fmtD(new Date())}`;
+  const sg=document.getElementById('storyGrid');
+  sg.innerHTML='';
+  stories.slice(0,6).forEach((s,i)=>{
+    const k=KLEUREN[i%KLEUREN.length];
+    const d=document.createElement('div');
+    d.className='story-card'; d.style.borderLeftColor=k;
+    d.innerHTML=`<div class="story-head" style="color:${k}">${s.head}</div><div class="story-body">${s.body}</div>`;
+    sg.appendChild(d);
+  });
+  document.getElementById('storylinesBox').style.display='block';
+}
+
+function setFilter(btn,key){
+  document.querySelectorAll('.filter-btn:not(.method-btn):not(.refresh-btn)').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); flt=key; render();
+}
+function toggleMethod(){
+  const b=document.getElementById('methodBox'),btn=document.querySelector('.method-btn');
+  b.classList.toggle('open'); btn.textContent=b.classList.contains('open')?'▲ Methodologie':'▼ Methodologie';
+}
+
+setInterval(init,5*60*1000);
+init();
+</script>
+</body>
+</html>
