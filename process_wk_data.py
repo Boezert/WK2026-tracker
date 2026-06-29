@@ -32,7 +32,7 @@ print('Knockout rondes:', dict(per_ronde))
 # Verhaallijnen via Claude
 team_data = []
 for g in [x for x in standen.get('standings',[]) if x.get('type')=='TOTAL']:
-    ltr = g.get('group','').replace('GROUP_','')
+    ltr = (g.get('group') or '').replace('GROUP_','')
     for t in g.get('table',[]):
         team_data.append({'groep':ltr,'team':t['team']['name'],'pts':t['points'],'pos':t['position'],
             'w':t['won'],'g':t['draw'],'v':t['lost'],'gf':t['goalsFor'],'gt':t['goalsAgainst'],'ds':t['goalDifference'],'gespeeld':t['playedGames']})
